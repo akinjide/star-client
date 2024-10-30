@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
+import StudentView from '../views/StudentView.vue'
 
 const routes = [
   {
@@ -10,7 +11,7 @@ const routes = [
   {
     path: '/studentDashboard',
     name: 'studentDashboard',
-    component: () => import(/* webpackChunkName: "about" */ '../views/StudentView.vue')
+    component: StudentView
   }
 ]
 
