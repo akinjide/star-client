@@ -3,16 +3,16 @@
     <v-container fluid class="login-page">
       <v-row no-gutters class="my-auto">
         <!-- Left Side with Illustration -->
-        <v-col cols="12" md="6" class="illustration-col">
-          <img src="grad-proj-app\src\assets\illustration1.svg" alt="Illustration" class="illustration-img" />
+        <v-col cols="12" md="6">
+          <!-- <img src="src\assets\illustration1.svg" alt="Illustration" class="illustration-img" /> -->
         </v-col>
 
         <!-- Right Side with Form -->
         <v-col cols="12" md="6" class="form-col">
-          <v-card class="login-card">
-            <v-card-title class="d-flex justify-center logo">
-              <img src="grad-proj-app\src\assets\logo.svg" alt="Logo" class="logo-img" />
-            </v-card-title>
+          <div class="login-card">
+            <div class="d-flex justify-center logo">
+              <img src="/images/logo.svg" alt="Logo" class="logo-img" />
+            </div>
 
             <h2 class="text-center title">Graduation Project Manager</h2>
 
@@ -46,7 +46,7 @@
                 </p>
               </v-row>
             </v-form>
-          </v-card>
+          </div>
         </v-col>
       </v-row>
     </v-container>
@@ -72,7 +72,8 @@ export default {
 
 <style scoped>
 .login-page {
-  background: linear-gradient(to right, #1b53ad, #edf2ff);
+  background-image: url("/src/assets/Desktop - 1.svg");
+  background-size: contain;
   height: 100vh;
   display: flex;
 }
@@ -81,7 +82,6 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #edf2ff; /* Adjust the background color to blend with the gradient */
 }
 
 .illustration-img {
@@ -98,8 +98,6 @@ export default {
   max-width: 400px;
   width: 100%;
   padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .logo-img {
