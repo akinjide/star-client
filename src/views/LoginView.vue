@@ -63,7 +63,11 @@
 </template>
 
 <script>
+import { mapActions } from 'pinia'
+
 import api from '@/api'
+import { useAuthStore } from '@/stores/auth'
+import { useUserStore } from '@/stores/user'
 
 export default {
   data () {
@@ -79,8 +83,31 @@ export default {
       try {
         this.hasError = false
 
+        const store = useAuthStore()
         const response = await api.auth.login(this.email, this.password)
-        console.log(response)
+
+        if (response && response.data) {
+          const {
+            data: {
+              role_id: roleId,
+              id,
+              token
+            }
+          } = response
+
+          await this.getUser(id)
+
+          store.$patch({
+            auth: response.data,
+            accessToken: token,
+            isAuthenticated: true,
+            isAdmin: roleId === 1
+          })
+
+          return this.$router.push('/dashboard')
+        }
+
+        this.hasError = true
       } catch (error) {
         if (error && error.response) {
           const {
@@ -98,7 +125,8 @@ export default {
 
         this.hasError = true
       }
-    }
+    },
+    ...mapActions(useUserStore, ['getUser'])
   }
 }
 </script>

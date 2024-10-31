@@ -14,11 +14,11 @@ const routes = [
     }
   },
   {
-    path: '/student',
-    name: 'studentDashboard',
+    path: '/dashboard',
+    name: 'dashboard',
     component: StudentView,
     meta: {
-      title: 'Star - Dashboard | Student',
+      title: 'Star - Dashboard',
       requiresAuth: true
     }
   }
@@ -32,7 +32,15 @@ const router = createRouter({
 router.beforeEach((to) => {
   const authStore = useAuthStore()
 
-  if (to.meta.requiresAuth && !authStore.isLoggedIn) return '/'
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    return {
+      path: '/login',
+      // save the location we were at to come back later
+      query: {
+        redirect: to.fullPath
+      }
+    }
+  }
 })
 
 export default router

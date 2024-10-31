@@ -4,7 +4,7 @@
         <v-col cols>
           <v-card class="welcome-card pa-5" >
             <v-card-text >
-              <h2>Welcome Back, Hind! </h2>
+              <h2>Welcome Back, {{ user.full_name }}!</h2>
               <p>Let’s keep working on your graduation project!</p>
             </v-card-text>
           </v-card>
@@ -25,7 +25,16 @@
 
 <script>
 export default {
-  name: 'Dashboard'
+  name: 'Dashboard',
+  props: {
+    user: {
+      type: Object
+    }
+  },
+  created () {
+    // props are exposed on `this`
+    console.log(this.user)
+  }
 }
 </script>
 

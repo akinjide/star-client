@@ -1,17 +1,17 @@
 import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 
-export const useAuthStore = defineStore('counter', {
+export const useAuthStore = defineStore('auth', {
   state: () => ({
-    isAdmin: false,
-    isLoggedIn: false,
+    isAdmin: useStorage('auth.isAdmin', false),
+    isAuthenticated: useStorage('auth.isAuthenticated', false),
     auth: {},
     accessToken: useStorage('auth.accessToken', '')
   }),
   getters: {},
   actions: {
-    reset () {
-      this.accessToken = ''
-    }
+    // reset () {
+    //   this.accessToken = ''
+    // }
   }
 })

@@ -13,7 +13,7 @@
           <!-- Main Content Area (3) -->
           <v-col cols="8">
             <Header />
-            <Dashboard />
+            <Dashboard :user="user" />
          </v-col>
 
           <!-- Right Sidebar (4) -->
@@ -27,18 +27,30 @@
 </template>
 
 <script>
+import { mapState } from 'pinia'
+
 import Header from '@/components/Header.vue'
 import LeftSidebar from '@/components/LeftSidebar.vue'
 import RightSidebar from '@/components/RightSidebar.vue'
 import Dashboard from '@/components/Dashboard.vue'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'HomePage',
+  data () {
+    return {
+    }
+  },
   components: {
     Header,
     LeftSidebar,
     RightSidebar,
     Dashboard
+  },
+  methods: {
+  },
+  computed: {
+    ...mapState(useUserStore, ['user'])
   }
 }
 </script>
