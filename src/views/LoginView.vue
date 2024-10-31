@@ -16,6 +16,15 @@
 
             <h2 class="text-center title">Graduation Project Manager</h2>
 
+            <v-alert
+              class="my-2"
+              color="#C51162"
+              theme="dark"
+              border
+              v-if="hasError"
+            > {{ errorMessage }}
+            </v-alert>
+
             <v-form @submit.prevent="login" class="login-form">
               <v-text-field
                 v-model="email"
@@ -54,17 +63,41 @@
 </template>
 
 <script>
+import api from '@/api'
+
 export default {
   data () {
     return {
+      hasError: false,
+      errorMessage: 'Error Occurred. Please try again',
       email: '',
       password: ''
     }
   },
   methods: {
-    login () {
-      console.log('Email:', this.email)
-      console.log('Password:', this.password)
+    async login () {
+      try {
+        this.hasError = false
+
+        const response = await api.auth.login(this.email, this.password)
+        console.log(response)
+      } catch (error) {
+        if (error && error.response) {
+          const {
+            response: {
+              data: {
+                errorMessage = null
+              } = {}
+            }
+          } = error
+
+          if (errorMessage) {
+            this.errorMessage = errorMessage
+          }
+        }
+
+        this.hasError = true
+      }
     }
   }
 }
@@ -72,7 +105,7 @@ export default {
 
 <style scoped>
 .login-page {
-  background-image: url("/src/assets/Desktop - 1.svg");
+  background-image: url("/src/assets/bg-login.svg");
   background-size: contain;
   height: 100vh;
   display: flex;
