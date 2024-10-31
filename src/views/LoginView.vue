@@ -1,49 +1,126 @@
 <template>
-<v-container fluid class="login" >
-    <div class="circle"></div>
+  <v-app>
+    <v-container fluid class="login-page">
+      <v-row no-gutters class="my-auto">
+        <!-- Left Side with Illustration -->
+        <v-col cols="12" md="6">
+          <!-- <img src="src\assets\illustration1.svg" alt="Illustration" class="illustration-img" /> -->
+        </v-col>
 
-</v-container>
+        <!-- Right Side with Form -->
+        <v-col cols="12" md="6" class="form-col">
+          <div class="login-card">
+            <div class="d-flex justify-center logo">
+              <img src="/images/logo.svg" alt="Logo" class="logo-img" />
+            </div>
+
+            <h2 class="text-center title">Graduation Project Manager</h2>
+
+            <v-form @submit.prevent="login" class="login-form">
+              <v-text-field
+                v-model="email"
+                label="Email"
+                placeholder=""
+                type="email"
+                outlined
+                dense
+                required
+              />
+              <v-text-field
+                v-model="password"
+                label="Password"
+                type="password"
+                outlined
+                dense
+                required
+              />
+              <v-row class="forgot-password">
+                <a href="#">Forgot your password?</a>
+              </v-row>
+              <v-btn color="primary" block class="login-btn" @click="login">
+                Log in →
+              </v-btn>
+              <v-row class="signup-link">
+                <p>
+                  You do not have an account? <a href="#">Create an account</a>
+                </p>
+              </v-row>
+            </v-form>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
+  </v-app>
 </template>
 
-<!-- <script>
-import { defineComponent } from 'vue'
-
-// Components
-import HelloWorld from '../components/HelloWorld.vue'
-
-export default defineComponent({
-  name: 'HomeView',
-
-  components: {
-    HelloWorld
+<script>
+export default {
+  data () {
+    return {
+      email: '',
+      password: ''
+    }
+  },
+  methods: {
+    login () {
+      console.log('Email:', this.email)
+      console.log('Password:', this.password)
+    }
   }
-})
-</script> -->
+}
+</script>
+
 <style scoped>
+.login-page {
+  background-image: url("/src/assets/Desktop - 1.svg");
+  background-size: contain;
+  height: 100vh;
+  display: flex;
+}
 
-.login{
-  background-color: #2a3672;
-  height: 100%;
+.illustration-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.illustration-img {
+  max-width: 80%;
+}
+
+.form-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  max-width: 400px;
   width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  padding: 30px;
 }
 
-.circle {
-      width: 900px; /* Width and height should be equal */
-      height: 900px;
-      background-color: white;/* Change color as needed */
-      border-radius: 50%; /* Makes the div a circle */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-weight: bold;
-      position: absolute; /* Positioning */
-      left: -300px; /* Move it half its width to the left */
-      top: 50%; /* Vertically center */
-      transform: translateY(-50%);
+.logo-img {
+  max-width: 80px;
 }
 
+.title {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.forgot-password,
+.signup-link {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.login-btn {
+  margin-top: 20px;
+  color: white;
+}
 </style>

@@ -6,7 +6,8 @@ const routes = [
   {
     path: '/',
     name: 'login',
-    component: LoginView
+    component: LoginView,
+    title: 'Login'
   },
   {
     path: '/studentDashboard',
