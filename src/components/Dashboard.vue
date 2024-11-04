@@ -1,5 +1,5 @@
 <template>
- <v-container>
+ <v-container >
       <v-row>
         <v-col cols>
           <v-card class="welcome-card pa-5" >
@@ -32,7 +32,7 @@ export default {
   <style scoped>
   .welcome-card {
     position: relative;
-    width: 600px;
+    width: 750px;
     height: 120px;
     color:#f2f2f7;
    background: rgba(0, 26, 255, 0.37);

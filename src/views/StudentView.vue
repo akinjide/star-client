@@ -5,21 +5,16 @@
         <v-row>
           <!-- Left Sidebar (1) -->
           <v-col cols="2">
-            <div style="margin-right: 20px;">
               <LeftSidebar />
-            </div>
           </v-col>
 
+          <!-- Right Sidebar (4) -->
+            <RightSidebar />
           <!-- Main Content Area (3) -->
           <v-col cols="8">
             <Header />
             <Dashboard />
          </v-col>
-
-          <!-- Right Sidebar (4) -->
-          <v-col cols="2">
-            <RightSidebar />
-          </v-col>
         </v-row>
       </v-container>
     </v-main>

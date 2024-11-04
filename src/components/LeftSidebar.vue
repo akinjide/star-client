@@ -1,24 +1,20 @@
 <template>
-  <v-navigation-drawer app permanent Left class="left-sidebar">
-    <v-list>
-      <div style="margin-right: 20px;">
-        <v-list-item>
-          <v-list-item-title class="text-uppercase dashboard-title">
-            Dashboard
-          </v-list-item-title>
-        </v-list-item>
+  <v-navigation-drawer app permanent Left width="200" class="left-sidebar" >
+    <v-list density="compact">
+      <v-list-item>
+        <v-list-item-title class="text-uppercase dashboard-title">
+          Dashboard
+        </v-list-item-title>
+      </v-list-item>
 
-        <div>
-          <v-list-item v-for="(item, index) in menuItems" :key="index" link>
-            <div style="display: flex;">
-              <v-list-item-icon>
-                <v-icon>{{ item.icon }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </div>
-          </v-list-item>
-        </div>
-      </div>
+      <v-list-item v-for="(item, index) in menuItems" :key="index" link>
+        <template v-slot:prepend>
+          <v-icon>{{ item.icon }}</v-icon>
+        </template>
+
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item>
+
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -44,7 +40,7 @@ export default {
 .left-sidebar {
   background-color: #445a99;
   color: white;
-  width: 150px; /* Set width of the sidebar */
+  width: 200px; /* Set width of the sidebar */
 }
 
 .dashboard-title {
