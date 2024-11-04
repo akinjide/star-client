@@ -1,23 +1,14 @@
 <template>
-  <v-navigation-drawer app permanent Left class="left-sidebar">
+  <v-navigation-drawer app permanent Left class="left-sidebar py-1 px-5">
     <v-list>
-      <div style="margin-right: 20px;">
-        <v-list-item>
-          <v-list-item-title class="text-uppercase dashboard-title">
-            Dashboard
-          </v-list-item-title>
-        </v-list-item>
+      <div>
+        <v-list-subheader class="text-uppercase dashboard-title">Dashboard</v-list-subheader>
 
-        <div>
-          <v-list-item v-for="(item, index) in menuItems" :key="index" link>
-            <div style="display: flex;">
-              <v-list-item-icon>
-                <v-icon>{{ item.icon }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </div>
-          </v-list-item>
-        </div>
+        <v-list-item v-for="(item, index) in menuItems" :key="index" :active="item.active" :href="item.href" :prepend-icon="item.icon ">
+          <div class="d-flex align-center">
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </div>
+        </v-list-item>
       </div>
     </v-list>
   </v-navigation-drawer>
@@ -29,11 +20,11 @@ export default {
   data () {
     return {
       menuItems: [
-        { title: 'Home', icon: 'mdi-home' },
-        { title: 'Project', icon: 'mdi-lightbulb-outline' },
-        { title: 'Tasks', icon: 'mdi-format-list-bulleted' },
-        { title: 'Reports', icon: 'mdi-file-document-outline' },
-        { title: 'Community', icon: 'mdi-account-group-outline' }
+        { title: 'Home', icon: 'mdi-home', active: true, href: '/dashboard' },
+        { title: 'Project', icon: 'mdi-lightbulb-outline', active: false, href: '/dashboard/projects' },
+        { title: 'Tasks', icon: 'mdi-format-list-bulleted', active: false, href: '/dashboard/tasks' },
+        { title: 'Reports', icon: 'mdi-file-document-outline', active: false, href: '/dashboard/reports' },
+        { title: 'Community', icon: 'mdi-account-group-outline', active: false, href: '/dashboard/community' }
       ]
     }
   }

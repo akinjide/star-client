@@ -3,20 +3,15 @@
     <v-main>
       <v-container fluid>
         <v-row>
-          <!-- Left Sidebar (1) -->
           <v-col cols="2">
-            <div style="margin-right: 20px;">
-              <LeftSidebar />
-            </div>
+            <LeftSidebar />
           </v-col>
 
-          <!-- Main Content Area (3) -->
           <v-col cols="8">
-            <Header />
-            <Dashboard :user="user" />
+            <Header :name="$route.name"/>
+            <router-view />
          </v-col>
 
-          <!-- Right Sidebar (4) -->
           <v-col cols="2">
             <RightSidebar />
           </v-col>
@@ -32,20 +27,17 @@ import { mapState } from 'pinia'
 import Header from '@/components/Header.vue'
 import LeftSidebar from '@/components/LeftSidebar.vue'
 import RightSidebar from '@/components/RightSidebar.vue'
-import Dashboard from '@/components/Dashboard.vue'
 import { useUserStore } from '@/stores/user'
 
 export default {
-  name: 'HomePage',
+  name: 'Dashboard',
   data () {
-    return {
-    }
+    return {}
   },
   components: {
     Header,
     LeftSidebar,
-    RightSidebar,
-    Dashboard
+    RightSidebar
   },
   methods: {
   },

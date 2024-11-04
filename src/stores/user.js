@@ -1,4 +1,4 @@
-// import { useStorage } from '@vueuse/core'
+import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 
 import api from '@/api'
@@ -8,7 +8,7 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     id: '',
     username: '',
-    data: null
+    data: useStorage('user.data', {})
   }),
   getters: {
     user (state) {

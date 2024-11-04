@@ -1,14 +1,14 @@
 <template>
   <v-container class="right-sidebar">
     <v-list>
-      <v-list-item>
-        <v-list-item-title class="text-uppercase">Upcoming Tasks</v-list-item-title>
-      </v-list-item>
+      <div>
+        <v-list-subheader class="text-uppercase dashboard-title">Upcoming Tasks</v-list-subheader>
 
-      <v-list-item v-for="(task, index) in tasks" :key="index">
-        <v-list-item-title>{{ task.title }}</v-list-item-title>
-        <v-list-item-subtitle>{{ task.time }}</v-list-item-subtitle>
-      </v-list-item>
+        <v-list-item v-for="(task, index) in tasks" :key="index">
+          <v-list-item-title>{{ task.title }}</v-list-item-title>
+          <v-list-item-subtitle>{{ task.time }}</v-list-item-subtitle>
+        </v-list-item>
+      </div>
     </v-list>
   </v-container>
 </template>

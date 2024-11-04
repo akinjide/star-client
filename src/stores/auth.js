@@ -10,8 +10,8 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {},
   actions: {
-    // reset () {
-    //   this.accessToken = ''
-    // }
+    reset () {
+      // this.accessToken = ''
+    }
   }
 })
