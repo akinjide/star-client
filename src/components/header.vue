@@ -1,12 +1,18 @@
 <template>
   <v-app-bar app color="white" flat>
-    <v-toolbar-title>Home</v-toolbar-title>
+    <v-toolbar-title class="text-uppercase">{{ name }}</v-toolbar-title>
   </v-app-bar>
 </template>
 
 <script>
 export default {
-  name: 'Header'
+  name: 'Header',
+  props: {
+    name: {
+      type: String,
+      required: true
+    }
+  }
 }
 </script>
 

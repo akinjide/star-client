@@ -3,18 +3,18 @@
     <v-main>
       <v-container fluid>
         <v-row>
-          <!-- Left Sidebar (1) -->
           <v-col cols="2">
-              <LeftSidebar />
+            <LeftSidebar />
           </v-col>
 
-          <!-- Right Sidebar (4) -->
-            <RightSidebar />
-          <!-- Main Content Area (3) -->
           <v-col cols="8">
-            <Header />
-            <Dashboard />
+            <Header :name="$route.name"/>
+            <router-view />
          </v-col>
+
+          <v-col cols="2">
+            <RightSidebar :tasks="tasks" />
+          </v-col>
         </v-row>
       </v-container>
     </v-main>
@@ -22,18 +22,33 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'pinia'
+
 import Header from '@/components/Header.vue'
 import LeftSidebar from '@/components/LeftSidebar.vue'
 import RightSidebar from '@/components/RightSidebar.vue'
-import Dashboard from '@/components/Dashboard.vue'
+import { useUserStore } from '@/stores/user'
 
 export default {
-  name: 'HomePage',
+  name: 'Dashboard',
+  data () {
+    return {}
+  },
   components: {
     Header,
     LeftSidebar,
-    RightSidebar,
-    Dashboard
+    RightSidebar
+  },
+  methods: {
+    ...mapActions(useUserStore, ['getUserTasks']),
+    ...mapActions(useUserStore, ['getUser'])
+  },
+  async created () {
+    await this.getUserTasks(this.user.id)
+  },
+  computed: {
+    ...mapState(useUserStore, ['tasks']),
+    ...mapState(useUserStore, ['user'])
   }
 }
 </script>

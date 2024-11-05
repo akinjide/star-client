@@ -1,20 +1,21 @@
 <template>
-  <v-navigation-drawer app permanent Left width="200" class="left-sidebar" >
-    <v-list density="compact">
-      <v-list-item>
-        <v-list-item-title class="text-uppercase dashboard-title">
-          Dashboard
-        </v-list-item-title>
-      </v-list-item>
+  <v-navigation-drawer app permanent Left class="left-sidebar py-1 px-5">
+    <v-list>
+      <div>
+        <v-list-subheader class="text-uppercase dashboard-title">Dashboard</v-list-subheader>
 
-      <v-list-item v-for="(item, index) in menuItems" :key="index" link>
-        <template v-slot:prepend>
-          <v-icon>{{ item.icon }}</v-icon>
-        </template>
-
-        <v-list-item-title>{{ item.title }}</v-list-item-title>
-      </v-list-item>
-
+        <v-list-item
+          v-for="(item, index) in menuItems"
+          :key="index" nav
+          :active="item.name === $route.name"
+          :to="{name: item.name}"
+          :prepend-icon="item.icon"
+        >
+          <div class="d-flex align-center">
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </div>
+        </v-list-item>
+      </div>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -25,11 +26,11 @@ export default {
   data () {
     return {
       menuItems: [
-        { title: 'Home', icon: 'mdi-home' },
-        { title: 'Project', icon: 'mdi-lightbulb-outline' },
-        { title: 'Tasks', icon: 'mdi-format-list-bulleted' },
-        { title: 'Reports', icon: 'mdi-file-document-outline' },
-        { title: 'Community', icon: 'mdi-account-group-outline' }
+        { title: 'Home', icon: 'mdi-home', name: 'home' },
+        { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'projects' },
+        { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'tasks' },
+        { title: 'Reports', icon: 'mdi-file-document-outline', name: 'reports' },
+        { title: 'Community', icon: 'mdi-account-group-outline', name: 'community' }
       ]
     }
   }
