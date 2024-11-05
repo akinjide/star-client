@@ -9,7 +9,8 @@ export default {
   name: 'Header',
   props: {
     name: {
-      type: String
+      type: String,
+      required: true
     }
   }
 }
