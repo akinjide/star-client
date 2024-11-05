@@ -5,8 +5,8 @@
         <v-list-subheader class="text-uppercase dashboard-title">Upcoming Tasks</v-list-subheader>
 
         <v-list-item v-for="(task, index) in tasks" :key="index">
-          <v-list-item-title>{{ task.title }}</v-list-item-title>
-          <v-list-item-subtitle>{{ task.time }}</v-list-item-subtitle>
+          <v-list-item-title>{{ task.task_name }}</v-list-item-title>
+          <v-list-item-subtitle>{{ endsAt(task.task_ends_at) }}</v-list-item-subtitle>
         </v-list-item>
       </div>
     </v-list>
@@ -14,14 +14,22 @@
 </template>
 
 <script>
+import { useDateFormat } from '@vueuse/core'
+
 export default {
   name: 'RightSidebar',
+  props: {
+    tasks: {
+      type: Array,
+      required: true
+    }
+  },
   data () {
-    return {
-      tasks: [
-        { title: 'Typography in UX/UI', time: '10:00 am' },
-        { title: 'Figma UI UX Design', time: '10:00 am' }
-      ]
+    return {}
+  },
+  methods: {
+    endsAt (t) {
+      return useDateFormat(t, 'YYYY-MM-DD HH:mm:ss')
     }
   }
 }

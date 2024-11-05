@@ -4,7 +4,13 @@
       <div>
         <v-list-subheader class="text-uppercase dashboard-title">Dashboard</v-list-subheader>
 
-        <v-list-item v-for="(item, index) in menuItems" :key="index" :active="item.active" :href="item.href" :prepend-icon="item.icon ">
+        <v-list-item
+          v-for="(item, index) in menuItems"
+          :key="index" nav
+          :active="item.name === $route.name"
+          :to="{name: item.name}"
+          :prepend-icon="item.icon"
+        >
           <div class="d-flex align-center">
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </div>
@@ -20,11 +26,11 @@ export default {
   data () {
     return {
       menuItems: [
-        { title: 'Home', icon: 'mdi-home', active: true, href: '/dashboard' },
-        { title: 'Project', icon: 'mdi-lightbulb-outline', active: false, href: '/dashboard/projects' },
-        { title: 'Tasks', icon: 'mdi-format-list-bulleted', active: false, href: '/dashboard/tasks' },
-        { title: 'Reports', icon: 'mdi-file-document-outline', active: false, href: '/dashboard/reports' },
-        { title: 'Community', icon: 'mdi-account-group-outline', active: false, href: '/dashboard/community' }
+        { title: 'Home', icon: 'mdi-home', name: 'home' },
+        { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'projects' },
+        { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'tasks' },
+        { title: 'Reports', icon: 'mdi-file-document-outline', name: 'reports' },
+        { title: 'Community', icon: 'mdi-account-group-outline', name: 'community' }
       ]
     }
   }

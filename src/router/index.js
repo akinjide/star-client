@@ -78,16 +78,22 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to) => {
+router.beforeEach((to, from) => {
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return {
-      path: '/login',
+      path: '/',
       // save the location we were at to come back later
       query: {
         redirect: to.fullPath
       }
+    }
+  }
+
+  if (to.path === '/' && authStore.isAuthenticated) {
+    return {
+      path: '/dashboard'
     }
   }
 })

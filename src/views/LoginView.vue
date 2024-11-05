@@ -95,14 +95,14 @@ export default {
             }
           } = response
 
-          await this.getUser(id)
-
           store.$patch({
             auth: response.data,
             accessToken: token,
             isAuthenticated: true,
             isAdmin: roleId === 1
           })
+
+          await this.getUser(id)
 
           return this.$router.push('/dashboard')
         }

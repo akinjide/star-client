@@ -13,7 +13,7 @@
          </v-col>
 
           <v-col cols="2">
-            <RightSidebar />
+            <RightSidebar :tasks="tasks" />
           </v-col>
         </v-row>
       </v-container>
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 
 import Header from '@/components/Header.vue'
 import LeftSidebar from '@/components/LeftSidebar.vue'
@@ -40,8 +40,14 @@ export default {
     RightSidebar
   },
   methods: {
+    ...mapActions(useUserStore, ['getUserTasks']),
+    ...mapActions(useUserStore, ['getUser'])
+  },
+  async created () {
+    await this.getUserTasks(this.user.id)
   },
   computed: {
+    ...mapState(useUserStore, ['tasks']),
     ...mapState(useUserStore, ['user'])
   }
 }

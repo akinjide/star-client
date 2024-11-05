@@ -8,7 +8,8 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     id: '',
     username: '',
-    data: useStorage('user.data', {})
+    data: useStorage('user.data', {}),
+    tasks: []
   }),
   getters: {
     user (state) {
@@ -16,23 +17,26 @@ export const useUserStore = defineStore('user', {
     }
   },
   actions: {
-    async getUser (userId) {
-      try {
-        const auth = useAuthStore()
+    isAuthenticated () {
+      const auth = useAuthStore()
 
-        if (auth.isAuthenticated) {
-          const response = await api.user.get(userId)
-
-          if (response && response.data) {
-            this.data = response.data
-            return
-          }
-        }
-
-        throw new Error('User must be authenticated')
-      } catch (error) {
-        return error
+      if (auth.isAuthenticated) {
+        return true
       }
+
+      throw new Error('User must be authenticated')
+    },
+    async getUser (userId) {
+      this.isAuthenticated()
+
+      const { data } = await api.user.get(userId)
+      this.data = data
+    },
+    async getUserTasks (userId) {
+      this.isAuthenticated()
+
+      const { data: { data } } = await api.task.get(userId)
+      this.tasks = data
     },
     reset () {
       this.id = ''

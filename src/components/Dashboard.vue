@@ -15,7 +15,7 @@
             <v-progress-circular :value="65" size="120" width="10" color="primary">
               65%
             </v-progress-circular>
-            <p>PPM Report Progress</p>
+            <p class="pt-4">PPM Report Progress</p>
           </v-card-text>
         </v-card>
       </v-col>
@@ -28,12 +28,9 @@ export default {
   name: 'Dashboard',
   props: {
     user: {
-      type: Object
+      type: Object,
+      required: true
     }
-  },
-  created () {
-    // props are exposed on `this`
-    console.log(this.user)
   }
 }
 </script>
