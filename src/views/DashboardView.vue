@@ -8,12 +8,15 @@
           </v-col>
 
           <v-col cols="8">
-            <Header :name="$route.name"/>
-            <router-view />
+            <HeadBar :name="$route.name"/>
+
+            <div class="pa-2">
+              <router-view />
+            </div>
          </v-col>
 
           <v-col cols="2">
-            <RightSidebar :tasks="tasks" />
+            <RightSidebar :tasks="tasks" :user="user" />
           </v-col>
         </v-row>
       </v-container>
@@ -24,7 +27,7 @@
 <script>
 import { mapState, mapActions } from 'pinia'
 
-import Header from '@/components/Header.vue'
+import HeadBar from '@/components/HeadBar.vue'
 import LeftSidebar from '@/components/LeftSidebar.vue'
 import RightSidebar from '@/components/RightSidebar.vue'
 import { useUserStore } from '@/stores/user'
@@ -35,7 +38,7 @@ export default {
     return {}
   },
   components: {
-    Header,
+    HeadBar,
     LeftSidebar,
     RightSidebar
   },

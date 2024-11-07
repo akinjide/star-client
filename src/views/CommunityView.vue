@@ -3,6 +3,7 @@
     <v-row>
       <v-col cols="12">
         <h1>Community View</h1>
+        <v-avatar color="secondary">48</v-avatar>
       </v-col>
     </v-row>
   </v-container>

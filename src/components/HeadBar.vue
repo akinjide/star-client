@@ -1,6 +1,6 @@
 <template>
-  <v-app-bar app color="white" flat>
-    <v-toolbar-title class="text-uppercase">{{ name }}</v-toolbar-title>
+  <v-app-bar app color="white" flat class="header" elevation="1">
+    <v-toolbar-title class="header-title text-uppercase font-weight-medium">{{ name }}</v-toolbar-title>
   </v-app-bar>
 </template>
 
@@ -17,6 +17,10 @@ export default {
 </script>
 
 <style scoped>
+.header .header-title {
+  color: #445a99;
+}
+
 .v-toolbar-title {
   font-size: 18px;
 }
