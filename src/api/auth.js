@@ -21,5 +21,17 @@ export default {
   },
   async requestNewAccessToken () {
     // TOOD: add new accessToken logic
+  },
+  async create (user) {
+    // return request.post('/auth/create', {
+    //   full_name: user.first_name + ' ' + user.last_name,
+    //   title: user.title,
+    //   email: user.email,
+    //   passwd: user.password,
+    //   department: user.department,
+    //   graduation_year: user.graduation_year,
+    //   student_number: user.student_number,
+    //   role_id: user.roleId
+    // })
   }
 }
