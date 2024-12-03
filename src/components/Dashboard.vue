@@ -13,10 +13,10 @@
           <v-col cols="2" class="ma-2">
             <v-card class="progress-card mt-5">
               <v-card-text class="text-center">
-                <v-progress-circular :value="65" size="120" width="10" color="primary">
+                <v-progress-circular :model-value="65" size="120" width="15" color="pink">
                   65%
                 </v-progress-circular>
-                <p class="pt-4">PPM Report Progress</p>
+                <p class="pt-4">Report Progress</p>
               </v-card-text>
             </v-card>
           </v-col>
@@ -24,8 +24,8 @@
           <v-col cols="2" class="ma-2">
             <v-card class="progress-card mt-5">
               <v-card-text class="text-center">
-                <v-progress-circular :value="65" size="120" width="10" color="primary">
-                  65%
+                <v-progress-circular :model-value="40" size="120" width="15" color="teal">
+                  40%
                 </v-progress-circular>
                 <p class="pt-4">Task Progress</p>
               </v-card-text>

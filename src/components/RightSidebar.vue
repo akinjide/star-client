@@ -33,7 +33,7 @@
           <v-card-title class="dashboard-title">Pending Tasks</v-card-title>
 
           <v-list>
-            <v-list-item v-for="(task, index) in tasks" :key="index" class="pb-4">
+            <v-list-item v-for="(task, index) in pendingTasks" :key="index" class="pb-4">
               <v-list-item-title>{{ task.task_name }}</v-list-item-title>
 
               <v-list-item-subtitle>{{ endsAt(task.task_ends_at) }}</v-list-item-subtitle>
@@ -90,6 +90,17 @@ export default {
   methods: {
     endsAt (t) {
       return useDateFormat(t, 'dddd, YYYY-MM-DD HH:mm a')
+    }
+  },
+  computed: {
+    pendingTasks () {
+      return this.tasks.filter((task) => {
+        if (task.task_submitted_at) {
+          return false
+        }
+
+        return true
+      })
     }
   }
 }

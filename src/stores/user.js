@@ -29,7 +29,7 @@ export const useUserStore = defineStore('user', {
     async getUser (userId) {
       this.isAuthenticated()
 
-      const { data } = await api.user.get(userId)
+      const { data: { data } } = await api.user.get(userId)
       this.data = data
     },
     async getUserTasks (userId) {
