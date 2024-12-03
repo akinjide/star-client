@@ -1,18 +1,15 @@
 <template>
-  <v-container class="right-sidebar">
-    <v-list>
-      <div>
-        <v-list-subheader class="text-uppercase dashboard-title">Upcoming Tasks</v-list-subheader>
-
-        <v-list-item v-for="(task, index) in tasks" :key="index">
-          <v-list-item-title>{{ task.task_name }}</v-list-item-title>
-          <v-list-item-subtitle>{{ endsAt(task.task_ends_at) }}</v-list-item-subtitle>
+  <v-navigation-drawer permanent location="right" width="300" class="py-1">
+    <v-row align="center">
+      <v-col cols="9">
+        <v-list-item
+          lines="two"
+          prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg"
+          subtitle="Logged in"
+          nav
+          :title="user.full_name"
+        >
         </v-list-item>
-<<<<<<< Updated upstream
-      </div>
-    </v-list>
-  </v-container>
-=======
       </v-col>
 
       <v-col cols="3">
@@ -46,7 +43,6 @@
       </v-col>
     </v-row>
   </v-navigation-drawer>
->>>>>>> Stashed changes
 </template>
 
 <script>
@@ -54,18 +50,46 @@ import { useDateFormat } from '@vueuse/core'
 
 export default {
   name: 'RightSidebar',
+  components: {},
   props: {
     tasks: {
       type: Array,
       required: true
+    },
+    user: {
+      type: Object,
+      required: true
     }
   },
   data () {
-    return {}
+    return {
+      attributes: [
+        {
+          highlight: {
+            color: 'blue',
+            fillMode: 'light'
+          },
+          popover: {
+            visibility: 'click',
+            label: 'Task 1: Deadline'
+          },
+          dates: [new Date()]
+        },
+        {
+          highlight: 'green',
+          dot: true,
+          dates: [[new Date(2024, 10, 8), new Date(2024, 10, 12)]],
+          popover: {
+            visibility: 'click',
+            label: 'Task 2: Deadline'
+          }
+        }
+      ]
+    }
   },
   methods: {
     endsAt (t) {
-      return useDateFormat(t, 'YYYY-MM-DD HH:mm:ss')
+      return useDateFormat(t, 'dddd, YYYY-MM-DD HH:mm a')
     }
   },
   computed: {
@@ -83,12 +107,27 @@ export default {
 </script>
 
 <style scoped>
-.right-sidebar {
-  background-color: #f0f0f0;
-  width: 250px; /* Set width of the sidebar */
+.right-sidebar{
+  display: flex;
+  justify-content: center;
+  align-content: space-evenly;
 }
 
-.v-list-item-title {
-  font-size: 16px;
+.calendar-card :deep(.vc-weekday-1, .vc-weekday-7) {
+  color: #6366f1;
+}
+
+.calendar-card, .tasks-card {
+  margin-top: 20px;
+  background-color: #ffffff;
+}
+
+.calendar-title {
+  font-weight: bold;
+  color: rgba(0, 26, 255, 0.37)
+}
+
+.task-title {
+  font-weight: bold;
 }
 </style>

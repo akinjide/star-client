@@ -41,7 +41,7 @@ export default {
 .left-sidebar {
   background-color: #445a99;
   color: white;
-  width: 150px; /* Set width of the sidebar */
+  width: 200px; /* Set width of the sidebar */
 }
 
 .dashboard-title {

@@ -1,10 +1,6 @@
 <template>
   <v-container fluid>
     <v-row>
-<<<<<<< Updated upstream
-      <v-col cols="12">
-        <h1>Community View</h1>
-=======
       <v-col cols="10">
         <v-list
           :items="items"
@@ -17,7 +13,6 @@
             </v-chip>
           </template>
         </v-list>
->>>>>>> Stashed changes
       </v-col>
     </v-row>
   </v-container>

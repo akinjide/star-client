@@ -9,17 +9,6 @@
           </v-card-text>
         </v-card>
 
-<<<<<<< Updated upstream
-        <!-- Progress bar card -->
-        <v-card class="progress-card mt-5">
-          <v-card-text class="text-center">
-            <v-progress-circular :value="65" size="120" width="10" color="primary">
-              65%
-            </v-progress-circular>
-            <p class="pt-4">PPM Report Progress</p>
-          </v-card-text>
-        </v-card>
-=======
         <v-row>
           <v-col cols="2" class="ma-2">
             <v-card class="progress-card mt-5">
@@ -43,7 +32,6 @@
             </v-card>
           </v-col>
         </v-row>
->>>>>>> Stashed changes
       </v-col>
     </v-row>
  </v-container>
@@ -64,7 +52,7 @@ export default {
   <style scoped>
   .welcome-card {
     position: relative;
-    width: 600px;
+    width: 750px;
     height: 120px;
     color:#f2f2f7;
    background: rgba(0, 26, 255, 0.37);
