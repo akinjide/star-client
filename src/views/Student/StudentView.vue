@@ -22,10 +22,10 @@
 </template>
 
 <script>
-import Header from '@/components/Header.vue'
-import LeftSidebar from '@/components/LeftSidebar.vue'
-import RightSidebar from '@/components/RightSidebar.vue'
-import Dashboard from '@/components/Dashboard.vue'
+import Header from '@/components/common/Header.vue'
+import LeftSidebar from '@/components/common/LeftSidebar.vue'
+import RightSidebar from '@/components/common/RightSidebar.vue'
+import Dashboard from '@/components/common/Dashboard.vue'
 
 export default {
   name: 'HomePage',
