@@ -3,11 +3,9 @@
         <v-main>
             <v-row>
           <!-- Left Sidebar (1) -->
-          <v-col cols="2">
               <LeftAdmin />
-          </v-col>
           <!-- Main Content Area (3) -->
-          <v-col cols="10">
+          <v-col cols="12">
             <HeaderAdmin />
             <Dashboard />
          </v-col>
@@ -32,4 +30,7 @@ export default {
 </script>
 
 <style>
+.Dashboard{
+  float: center;
+}
 </style>
