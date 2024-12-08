@@ -2,19 +2,12 @@ import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
-import LoginView from '../views/LoginView.vue'
-import DashboardView from '../views/DashboardView.vue'
-import HomeView from '../views/HomeView.vue'
-import ProjectView from '../views/ProjectView.vue'
-import TaskView from '../views/TaskView.vue'
-import ReportView from '../views/ReportView.vue'
-import CommunityView from '../views/CommunityView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'login',
-    component: LoginView,
+    component: import('../views/LoginView.vue'),
     meta: {
       title: 'Star - Login'
     }
@@ -22,51 +15,98 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: DashboardView,
+    component: import('../views/DashboardView.vue'),
     meta: {
       title: 'Star - Dashboard',
       requiresAuth: true
     },
     children: [
+      // Student
       {
         path: '',
         name: 'home',
-        component: HomeView
+        component: import('../views/HomeView.vue')
       },
       {
         path: 'projects',
         name: 'projects',
-        component: ProjectView,
+        component: import('../views/student/ProjectView.vue'),
         meta: {
           title: 'Star - Project',
-          requiresAuth: true
+          requiresAuth: true,
+          requireAdmin: false
         }
       },
       {
         path: 'tasks',
         name: 'tasks',
-        component: TaskView,
+        component: import('../views/student/TaskView.vue'),
         meta: {
           title: 'Star - Tasks',
-          requiresAuth: true
+          requiresAuth: true,
+          requireAdmin: false
         }
       },
       {
         path: 'reports',
         name: 'reports',
-        component: ReportView,
+        component: import('../views/student/ReportView.vue'),
         meta: {
           title: 'Star - Reports',
-          requiresAuth: true
+          requiresAuth: true,
+          requireAdmin: false
         }
       },
       {
         path: 'community',
         name: 'community',
-        component: CommunityView,
+        component: import('../views/CommunityView.vue'),
         meta: {
           title: 'Star - Community',
-          requiresAuth: true
+          requiresAuth: true,
+          requireAdmin: false
+        }
+      },
+
+      // Admin
+      {
+        path: 'users',
+        name: 'user management',
+        component: import('../views/admin/UserView.vue'),
+        meta: {
+          title: 'Star - Users',
+          requiresAuth: true,
+          requireAdmin: true
+        }
+      },
+      {
+        path: 'team',
+        name: 'team management',
+        component: import('../views/admin/TeamView.vue'),
+        meta: {
+          title: 'Star - Team',
+          requiresAuth: true,
+          requireAdmin: true
+        }
+      },
+      {
+        path: 'projects',
+        name: 'project management',
+        component: import('../views/admin/ProjectView.vue'),
+        meta: {
+          title: 'Star - Projects',
+          requiresAuth: true,
+          requireAdmin: true
+        }
+      },
+      {
+        path: 'documentation',
+        name: 'documentation management',
+        component: import('../views/admin/DocumentationView.vue'),
+        meta: {
+          title: 'Star - Documentation',
+          requiresAuth: true,
+          requireAdmin: true
         }
       }
     ]
@@ -82,6 +122,17 @@ router.beforeEach((to, from) => {
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    if (to.meta.requireAdmin && !authStore.isAdmin) {
+      // return user back to previous page
+      // return {
+      //   path: '/',
+      //   // save the location we were at to come back later
+      //   query: {
+      //     redirect: to.fullPath
+      //   }
+      // }
+    }
+
     return {
       path: '/',
       // save the location we were at to come back later

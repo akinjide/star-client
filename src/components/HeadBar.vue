@@ -6,7 +6,13 @@
 
 <script>
 export default {
-  name: 'Header'
+  name: 'Header',
+  props: {
+    name: {
+      type: String,
+      required: true
+    }
+  }
 }
 </script>
 

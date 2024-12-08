@@ -1,18 +1,7 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col cols="2">
-        <v-card class="progress-card mt-5">
-          <v-card-text class="text-center">
-            <v-progress-circular :model-value="progress" size="120" width="15" color="teal">
-              {{ progress }} %
-            </v-progress-circular>
-            <p class="pt-4">Task Progress</p>
-          </v-card-text>
-        </v-card>
-      </v-col>
-
-      <v-col cols="8" class="mx-6">
+      <v-col cols="10">
         <v-table
           height="100vh"
           fixed-header
@@ -41,6 +30,18 @@
           </tbody>
         </v-table>
       </v-col>
+
+      <v-col cols="2">
+        <v-card class="progress-card mt-5">
+          <v-card-text class="text-center">
+            <v-progress-circular :model-value="progress" size="120" width="15" color="teal">
+              {{ progress }} %
+            </v-progress-circular>
+            <p class="pt-4">Task Progress</p>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
     </v-row>
   </v-container>
 </template>

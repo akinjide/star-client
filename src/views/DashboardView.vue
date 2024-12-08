@@ -10,7 +10,7 @@
           <v-col cols="8">
             <HeadBar :name="$route.name"/>
 
-            <div class="pa-2">
+            <div class="pa-2 pl-2 pr-10">
               <router-view />
             </div>
          </v-col>

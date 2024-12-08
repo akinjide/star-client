@@ -4,16 +4,16 @@
       <v-col cols="9">
         <v-list-item
           lines="two"
-          prepend-avatar="https://randomuser.me/api/portraits/women/81.jpg"
+          :title="user.full_name"
+          :prepend-avatar="user.image"
           subtitle="Logged in"
           nav
-          :title="user.full_name"
         >
         </v-list-item>
       </v-col>
 
       <v-col cols="3">
-        <v-btn icon="mdi-bell-outline" size="x-small"></v-btn>
+        <v-btn icon="mdi-logout" size="x-small" @click="logout(user)"></v-btn>
       </v-col>
     </v-row>
 
@@ -46,6 +46,9 @@
 </template>
 
 <script>
+import { mapActions } from 'pinia'
+
+import { useAuthStore } from '@/stores/auth'
 import { useDateFormat } from '@vueuse/core'
 
 export default {
@@ -88,6 +91,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(useAuthStore, ['logout']),
     endsAt (t) {
       return useDateFormat(t, 'dddd, YYYY-MM-DD HH:mm a')
     }

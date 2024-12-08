@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col cols="10">
+      <v-col cols="12">
         <v-table
           height="100vh"
           fixed-header

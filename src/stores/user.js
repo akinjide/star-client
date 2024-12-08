@@ -13,7 +13,10 @@ export const useUserStore = defineStore('user', {
   }),
   getters: {
     user (state) {
-      return state.data
+      return {
+        image: 'https://cdn.vuetifyjs.com/images/lists/4.jpg',
+        ...state.data
+      }
     }
   },
   actions: {
@@ -30,7 +33,10 @@ export const useUserStore = defineStore('user', {
       this.isAuthenticated()
 
       const { data: { data } } = await api.user.get(userId)
-      this.data = data
+      this.data = {
+        image: 'https://cdn.vuetifyjs.com/images/lists/4.jpg',
+        ...data
+      }
     },
     async getUserTasks (userId) {
       this.isAuthenticated()
