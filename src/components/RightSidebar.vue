@@ -6,14 +6,14 @@
           lines="two"
           :title="user.full_name"
           :prepend-avatar="user.image"
-          subtitle="Logged in"
+          :subtitle="activeUserRole"
           nav
         >
         </v-list-item>
       </v-col>
 
       <v-col cols="3">
-        <v-btn icon="mdi-logout" size="x-small" @click="logout(user)"></v-btn>
+        <v-btn icon="mdi-logout" size="x-small" @click="logout(user, this.$router)"></v-btn>
       </v-col>
     </v-row>
 
@@ -27,7 +27,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row v-if="pendingTasks.length">
       <v-col>
         <v-card class="tasks-card ma-4" outlined>
           <v-card-title class="dashboard-title">Pending Tasks</v-card-title>
@@ -60,6 +60,10 @@ export default {
       required: true
     },
     user: {
+      type: Object,
+      required: true
+    },
+    roles: {
       type: Object,
       required: true
     }
@@ -105,6 +109,9 @@ export default {
 
         return true
       })
+    },
+    activeUserRole () {
+      return this.roles[this.user.role_id] || 'Logged in'
     }
   }
 }

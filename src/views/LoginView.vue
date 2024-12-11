@@ -107,8 +107,11 @@ export default {
           return this.$router.push('/dashboard')
         }
 
+        // Temporary
+        this.errorMessage = response.errorMessage
         this.hasError = true
       } catch (error) {
+        console.log(error)
         if (error && error.response) {
           const {
             response: {

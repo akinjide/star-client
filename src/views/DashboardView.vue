@@ -4,7 +4,7 @@
       <v-container fluid>
         <v-row>
           <v-col cols="2">
-            <LeftSidebar />
+            <LeftSidebar :user="user" />
           </v-col>
 
           <v-col cols="8">
@@ -16,7 +16,7 @@
          </v-col>
 
           <v-col cols="2">
-            <RightSidebar :tasks="tasks" :user="user" />
+            <RightSidebar :tasks="tasks" :user="user" :roles="roles"/>
           </v-col>
         </v-row>
       </v-container>
@@ -35,7 +35,14 @@ import { useUserStore } from '@/stores/user'
 export default {
   name: 'Dashboard',
   data () {
-    return {}
+    return {
+      roles: {
+        1: 'Administrator',
+        2: 'Supervisor',
+        3: 'Committee Member',
+        4: 'Student'
+      }
+    }
   },
   components: {
     HeadBar,

@@ -7,16 +7,13 @@ import { useAuthStore } from './auth'
 export const useUserStore = defineStore('user', {
   state: () => ({
     id: '',
-    username: '',
     data: useStorage('user.data', {}),
-    tasks: []
+    tasks: [],
+    users: []
   }),
   getters: {
     user (state) {
-      return {
-        image: 'https://cdn.vuetifyjs.com/images/lists/4.jpg',
-        ...state.data
-      }
+      return state.data
     }
   },
   actions: {
@@ -29,14 +26,17 @@ export const useUserStore = defineStore('user', {
 
       throw new Error('User must be authenticated')
     },
+    async getUsers () {
+      this.isAuthenticated()
+
+      const { data } = await api.user.all()
+      this.users = data
+    },
     async getUser (userId) {
       this.isAuthenticated()
 
       const { data: { data } } = await api.user.get(userId)
-      this.data = {
-        image: 'https://cdn.vuetifyjs.com/images/lists/4.jpg',
-        ...data
-      }
+      this.data = data
     },
     async getUserTasks (userId) {
       this.isAuthenticated()
@@ -46,7 +46,9 @@ export const useUserStore = defineStore('user', {
     },
     reset () {
       this.id = ''
-      this.username = ''
+      this.data = {}
+      this.tasks = []
+      this.users = []
     }
   }
 })

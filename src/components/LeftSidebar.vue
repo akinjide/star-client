@@ -23,54 +23,50 @@
 <script>
 export default {
   name: 'LeftSidebar',
+  props: {
+    user: {
+      type: Object,
+      required: true
+    }
+  },
   data () {
     return {
       menu: [
-        { title: 'Home', icon: 'mdi-home', name: 'home', allow: -1 },
-        { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'projects', allow: -1 },
-        { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'tasks', allow: -1 },
-        { title: 'Reports', icon: 'mdi-file-document-outline', name: 'reports', allow: -1 },
-        { title: 'Community', icon: 'mdi-forum-outline', name: 'community', allow: -1 },
+        { title: 'Home', icon: 'mdi-home', name: 'home', allow: [1, 4, 2] },
+        { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'projects', allow: [4] },
+        { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'tasks', allow: [4] },
+        { title: 'Reports', icon: 'mdi-file-document-outline', name: 'reports', allow: [4] },
+        { title: 'Community', icon: 'mdi-forum-outline', name: 'community', allow: [4] },
 
-        { title: 'Users', icon: 'mdi-account-multiple-outline', name: 'user management', allow: -1 },
-        { title: 'Team', icon: 'mdi-account-group-outline', name: 'team management', allow: -1 },
-        { title: 'Project', icon: 'mdi-lightbulb-on-outline', name: 'project management', allow: -1 },
-        { title: 'Documentation', icon: 'mdi-file-document-multiple-outline', name: 'documentation management', allow: -1 },
+        { title: 'Users', icon: 'mdi-account-multiple-outline', name: 'user management', allow: [1] },
+        { title: 'Team', icon: 'mdi-account-group-outline', name: 'team management', allow: [1] },
+        { title: 'Project', icon: 'mdi-lightbulb-on-outline', name: 'project management', allow: [1] },
+        { title: 'Documentation', icon: 'mdi-file-document-multiple-outline', name: 'documentation management', allow: [1] },
 
-        { title: 'Evaluations', icon: 'mdi-file-chart-outline', name: 'documentation management', allow: -1 }
+        { title: 'Evaluations', icon: 'mdi-file-chart-outline', name: 'evaluations', allow: [1, 2, 3] }
       ]
     }
   },
   computed: {
     roleBasedMenu () {
       const menu = []
+      const filterFn = (roleId) => {
+        return (m) => {
+          if (m.allow.includes(roleId)) { return true }
+          return false
+        }
+      }
 
       if (this.menu.length) {
-        switch (1) {
+        menu.push(...this.menu.filter(filterFn(-1)))
+
+        switch (this.user.role_id) {
           case 1:
-            menu.push(...this.menu.filter((m) => {
-              if (m.allow === 1 || m.allow === -1) {
-                return true
-              }
-
-              return false
-            }))
-
-            break
-
           case 2:
-            menu.push(...this.menu.filter((m) => {
-              if (m.allow === 2 || m.allow === -1) {
-                return true
-              }
-
-              return false
-            }))
-
-            break
-
           case 3:
           case 4:
+            menu.push(...this.menu.filter(filterFn(this.user.role_id)))
+            break
         }
       }
 

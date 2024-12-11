@@ -7,7 +7,7 @@
 
       <v-col cols="4">
         <div class="d-flex justify-end">
-          <h4 class="mx-4">{{ users.length}} User(s)</h4>
+          <h4 class="mx-4">{{ usersCount }} User(s)</h4>
           <v-btn color="blue" size="small" variant="tonal" @click="dialog = true">Add User
           </v-btn>
         </div>
@@ -29,7 +29,16 @@
                 Full Name
               </th>
               <th class="text-left text-uppercase">
+                Title
+              </th>
+              <th class="text-left text-uppercase">
+                Email
+              </th>
+              <th class="text-left text-uppercase">
                 Role
+              </th>
+              <th class="text-left text-uppercase">
+                Department
               </th>
               <th class="text-left text-uppercase">
                 Student Number
@@ -46,7 +55,10 @@
             >
               <td><v-avatar :image="user.image"></v-avatar></td>
               <td>{{ user.full_name }}</td>
+              <td>{{ user.title }}</td>
+              <td>{{ user.email }}</td>
               <td>{{ user.role_id }}</td>
+              <td>{{ user.department }}</td>
               <td>{{ user.student_number }}</td>
               <td>
                 <v-btn class="mr-2" size="x-small" color="blue" variant="tonal" @click="dialog = true">
@@ -158,24 +170,33 @@
 </template>
 
 <script>
-import { mapState } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'User Management',
   data () {
     return {
-      dialog: false,
-      users: [
-        { full_name: 'John Doe', role_id: 1, image: 'https://cdn.vuetifyjs.com/images/lists/1.jpg', student_number: '121242' }
-      ]
+      dialog: false
     }
   },
   components: {},
   methods: {
+    ...mapActions(useUserStore, ['getUsers'])
+  },
+  async created () {
+    await this.getUsers()
   },
   computed: {
-    ...mapState(useUserStore, ['user'])
+    ...mapState(useUserStore, ['user']),
+    ...mapState(useUserStore, ['users']),
+    usersCount () {
+      if (this.users) {
+        return this.users.length
+      }
+
+      return 0
+    }
   }
 }
 </script>

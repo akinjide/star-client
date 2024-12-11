@@ -2,8 +2,8 @@
 
 export default {
   async login (email, password) {
-    return {
-      data: {
+    const users = {
+      'john@gmail.com': {
         full_name: 'John Doe',
         role_id: 1,
         permissions: [
@@ -12,8 +12,42 @@ export default {
         id: 1,
         email: 'john@gmail.com',
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkIwMzZENUQwLTlGOTEtNDRERi05NDU0LTIwODM5RDhFM0IyOSJ9.eyJmdWxsX25hbWUiOiJKb2huIERvZSIsInJvbGVfaWQiOjEsInBlcm1pc3Npb25zIjpbInVwZGF0ZS11c2VyIl0sImlkIjoxLCJlbWFpbCI6ImpvaG5AZ21haWwuY29tIiwiaWF0IjoxNzMwODE0Njc4NzU1LCJleHAiOjE3MzA4MTQ2Nzk5NTUsImF1ZCI6IioubG9jYWxob3N0IiwiaXNzIjoic3Rhci1zZXJ2ZXIubG9jYWxob3N0Iiwic3ViIjoiMSIsImp0aSI6IjYyZmFkZDRjLWMxYzYtNDc4YS05ZjMxLTA1ODQyOGQ4YTU4MSJ9.vNxmoYwN68lFduU_xfOfyaczAnXr6GCbG83kX8jhrO8'
+      },
+      'mark@gmail.com': {
+        full_name: 'Mark Twain',
+        role_id: 4,
+        permissions: [
+          'update-user'
+        ],
+        id: 2,
+        email: 'mark@gmail.com',
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkIwMzZENUQwLTlGOTEtNDRERi05NDU0LTIwODM5RDhFM0IyOSJ9.eyJmdWxsX25hbWUiOiJKb2huIERvZSIsInJvbGVfaWQiOjEsInBlcm1pc3Npb25zIjpbInVwZGF0ZS11c2VyIl0sImlkIjoxLCJlbWFpbCI6ImpvaG5AZ21haWwuY29tIiwiaWF0IjoxNzMwODE0Njc4NzU1LCJleHAiOjE3MzA4MTQ2Nzk5NTUsImF1ZCI6IioubG9jYWxob3N0IiwiaXNzIjoic3Rhci1zZXJ2ZXIubG9jYWxob3N0Iiwic3ViIjoiMSIsImp0aSI6IjYyZmFkZDRjLWMxYzYtNDc4YS05ZjMxLTA1ODQyOGQ4YTU4MSJ9.vNxmoYwN68lFduU_xfOfyaczAnXr6GCbG83kX8jhrO8'
+      },
+      'cem.ergun@emu.edu.tr': {
+        full_name: 'Cem Ergun',
+        role_id: 2,
+        permissions: [
+          'update-user'
+        ],
+        id: 4,
+        email: 'cem.ergun@emu.edu.tr',
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkIwMzZENUQwLTlGOTEtNDRERi05NDU0LTIwODM5RDhFM0IyOSJ9.eyJmdWxsX25hbWUiOiJKb2huIERvZSIsInJvbGVfaWQiOjEsInBlcm1pc3Npb25zIjpbInVwZGF0ZS11c2VyIl0sImlkIjoxLCJlbWFpbCI6ImpvaG5AZ21haWwuY29tIiwiaWF0IjoxNzMwODE0Njc4NzU1LCJleHAiOjE3MzA4MTQ2Nzk5NTUsImF1ZCI6IioubG9jYWxob3N0IiwiaXNzIjoic3Rhci1zZXJ2ZXIubG9jYWxob3N0Iiwic3ViIjoiMSIsImp0aSI6IjYyZmFkZDRjLWMxYzYtNDc4YS05ZjMxLTA1ODQyOGQ4YTU4MSJ9.vNxmoYwN68lFduU_xfOfyaczAnXr6GCbG83kX8jhrO8'
       }
     }
+
+    const user = users[email]
+
+    if (user) {
+      return {
+        data: users[email]
+      }
+    }
+
+    return {
+      errorCode: 400,
+      errorMessage: 'invalid email or password'
+    }
+
     // return request.post('/auth/login', {
     //   email: email,
     //   passwd: password

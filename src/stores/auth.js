@@ -10,10 +10,12 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {},
   actions: {
-    logout (user) {
-      console.log(user)
-      console.log(this)
-      // this.accessToken = ''
+    logout (user, $router) {
+      this.accessToken = ''
+      this.isAdmin = false
+      this.isAuthenticated = false
+
+      $router.replace({ path: '/' })
       return true
     }
   }
