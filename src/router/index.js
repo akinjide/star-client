@@ -7,7 +7,7 @@ const routes = [
   {
     path: '/',
     name: 'login',
-    component: () => import('../views/LoginView.vue'),
+    component: () => import('../views/common/LoginView.vue'),
     meta: {
       title: 'Star - Login'
     }
@@ -15,7 +15,7 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import('../views/DashboardView.vue'),
+    component: () => import('../views/common/DashboardView.vue'),
     meta: {
       title: 'Star - Dashboard',
       requiresAuth: true
@@ -25,7 +25,7 @@ const routes = [
       {
         path: '',
         name: 'home',
-        component: () => import('../views/HomeView.vue')
+        component: () => import('../views/common/HomeView.vue')
       },
       {
         path: 'projects',
@@ -60,7 +60,7 @@ const routes = [
       {
         path: 'community',
         name: 'community',
-        component: () => import('../views/CommunityView.vue'),
+        component: () => import('../views/student/CommunityView.vue'),
         meta: {
           title: 'Star - Community',
           requiresAuth: true,
@@ -70,55 +70,67 @@ const routes = [
       {
         path: 'evaluations',
         name: 'evaluations',
-        component: () => import('../views/EvaluationView.vue'),
+        component: () => import('../views/common/EvaluationView.vue'),
         meta: {
           title: 'Star - Evaluations',
-          requiresAuth: true
+          requiresAuth: true,
+          requireAdmin: false
         }
       },
 
       // Admin
       {
-        path: 'users',
-        name: 'user management',
-        component: () => import('../views/admin/UserView.vue'),
+        path: 'manage/users',
+        name: 'user_management',
+        component: () => import('../views/administrator/UserView.vue'),
         meta: {
-          title: 'Star - Users',
+          title: 'Star - Manage Users',
           requiresAuth: true,
           requireAdmin: true
         }
       },
       {
-        path: 'team',
-        name: 'team management',
-        component: () => import('../views/admin/TeamView.vue'),
+        path: 'manage/team',
+        name: 'team_management',
+        component: () => import('../views/administrator/TeamView.vue'),
         meta: {
-          title: 'Star - Team',
+          title: 'Star - Manage Teams',
           requiresAuth: true,
           requireAdmin: true
         }
       },
       {
-        path: 'projects',
-        name: 'project management',
-        component: () => import('../views/admin/ProjectView.vue'),
+        path: 'manage/projects',
+        name: 'project_management',
+        component: () => import('../views/administrator/ProjectView.vue'),
         meta: {
-          title: 'Star - Projects',
+          title: 'Star - Manage Projects',
           requiresAuth: true,
           requireAdmin: true
         }
       },
       {
-        path: 'documentation',
-        name: 'documentation management',
-        component: () => import('../views/admin/DocumentationView.vue'),
+        path: 'manage/documentation',
+        name: 'documentation',
+        component: () => import('../views/administrator/DocumentationView.vue'),
         meta: {
-          title: 'Star - Documentation',
+          title: 'Star - Manage Documentation',
           requiresAuth: true,
           requireAdmin: true
         }
       }
     ]
+  },
+
+  {
+    path: '/home',
+    name: 'home_management',
+    component: () => import('../views/administrator/HomeView.vue'),
+    meta: {
+      title: 'Star - Home',
+      requiresAuth: true,
+      requireAdmin: true
+    }
   }
 ]
 
@@ -131,27 +143,27 @@ router.beforeEach((to, from) => {
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    if (to.meta.requireAdmin && !authStore.isAdmin) {
-      // return user back to previous page
-      // return {
-      //   path: '/',
-      //   // save the location we were at to come back later
-      //   query: {
-      //     redirect: to.fullPath
-      //   }
-      // }
-    }
-
     return {
       path: '/',
-      // save the location we were at to come back later
       query: {
         redirect: to.fullPath
       }
     }
   }
 
+  if (authStore.isAuthenticated && to.meta.requireAdmin && !authStore.isAdmin) {
+    return {
+      path: '/dashboard'
+    }
+  }
+
   if (to.path === '/' && authStore.isAuthenticated) {
+    if (authStore.isAdmin) {
+      return {
+        path: '/home'
+      }
+    }
+
     return {
       path: '/dashboard'
     }

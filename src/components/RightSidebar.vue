@@ -5,7 +5,7 @@
         <v-list-item
           lines="two"
           :title="user.full_name"
-          :prepend-avatar="user.image"
+          :prepend-avatar="getImage(user.image)"
           :subtitle="activeUserRole"
           nav
         >
@@ -46,10 +46,11 @@
 </template>
 
 <script>
-import { mapActions } from 'pinia'
+import { mapState, mapActions } from 'pinia'
 
 import { useAuthStore } from '@/stores/auth'
 import { useDateFormat } from '@vueuse/core'
+import { useMainStore } from '@/stores/main'
 
 export default {
   name: 'RightSidebar',
@@ -63,8 +64,8 @@ export default {
       type: Object,
       required: true
     },
-    roles: {
-      type: Object,
+    getRoleName: {
+      type: Function,
       required: true
     }
   },
@@ -101,6 +102,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(useMainStore, ['getImage']),
     pendingTasks () {
       return this.tasks.filter((task) => {
         if (task.task_submitted_at) {
@@ -111,7 +113,7 @@ export default {
       })
     },
     activeUserRole () {
-      return this.roles[this.user.role_id] || 'Logged in'
+      return this.getRoleName(this.user.role_id) || 'Logged in'
     }
   }
 }

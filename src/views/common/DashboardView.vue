@@ -16,7 +16,7 @@
          </v-col>
 
           <v-col cols="2">
-            <RightSidebar :tasks="tasks" :user="user" :roles="roles"/>
+            <RightSidebar :tasks="tasks" :user="user" :getRoleName="getRoleName" />
           </v-col>
         </v-row>
       </v-container>
@@ -35,14 +35,7 @@ import { useUserStore } from '@/stores/user'
 export default {
   name: 'Dashboard',
   data () {
-    return {
-      roles: {
-        1: 'Administrator',
-        2: 'Supervisor',
-        3: 'Committee Member',
-        4: 'Student'
-      }
-    }
+    return {}
   },
   components: {
     HeadBar,
@@ -58,7 +51,8 @@ export default {
   },
   computed: {
     ...mapState(useUserStore, ['tasks']),
-    ...mapState(useUserStore, ['user'])
+    ...mapState(useUserStore, ['user']),
+    ...mapState(useUserStore, ['getRoleName'])
   }
 }
 </script>

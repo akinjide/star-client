@@ -1,6 +1,6 @@
 <template>
   <v-app-bar app color="white" flat class="header" elevation="1">
-    <v-toolbar-title class="header-title text-uppercase font-weight-medium">{{ name }}</v-toolbar-title>
+    <v-toolbar-title class="header-title text-uppercase font-weight-medium">{{ headBarName }}</v-toolbar-title>
   </v-app-bar>
 </template>
 
@@ -11,6 +11,11 @@ export default {
     name: {
       type: String,
       required: true
+    }
+  },
+  computed: {
+    headBarName () {
+      return this.name.split('_').join(' ')
     }
   }
 }

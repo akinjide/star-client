@@ -93,7 +93,7 @@ export default {
               id,
               token
             }
-          } = response
+          } = response.data
 
           store.$patch({
             auth: response.data,
@@ -104,11 +104,13 @@ export default {
 
           await this.getUser(id)
 
+          if (roleId === 1) {
+            return this.$router.push('/home')
+          }
+
           return this.$router.push('/dashboard')
         }
 
-        // Temporary
-        this.errorMessage = response.errorMessage
         this.hasError = true
       } catch (error) {
         console.log(error)

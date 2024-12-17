@@ -32,18 +32,19 @@ export default {
   data () {
     return {
       menu: [
-        { title: 'Home', icon: 'mdi-home', name: 'home', allow: [1, 4, 2] },
+        { title: 'Home', icon: 'mdi-home', name: 'home', allow: [4, 2] },
         { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'projects', allow: [4] },
         { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'tasks', allow: [4] },
         { title: 'Reports', icon: 'mdi-file-document-outline', name: 'reports', allow: [4] },
         { title: 'Community', icon: 'mdi-forum-outline', name: 'community', allow: [4] },
 
-        { title: 'Users', icon: 'mdi-account-multiple-outline', name: 'user management', allow: [1] },
-        { title: 'Team', icon: 'mdi-account-group-outline', name: 'team management', allow: [1] },
-        { title: 'Project', icon: 'mdi-lightbulb-on-outline', name: 'project management', allow: [1] },
-        { title: 'Documentation', icon: 'mdi-file-document-multiple-outline', name: 'documentation management', allow: [1] },
+        { title: 'Home', icon: 'mdi-home', name: 'home_management', allow: [1] },
+        { title: 'Users', icon: 'mdi-account-multiple-outline', name: 'user_management', allow: [1] },
+        { title: 'Team', icon: 'mdi-account-group-outline', name: 'team_management', allow: [1] },
+        { title: 'Project', icon: 'mdi-note-multiple-outline', name: 'project_management', allow: [1] },
+        { title: 'Documentation', icon: 'mdi-file-document-multiple-outline', name: 'documentation', allow: [1] },
 
-        { title: 'Evaluations', icon: 'mdi-file-chart-outline', name: 'evaluations', allow: [1, 2, 3] }
+        { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'evaluations', allow: [1, 2, 3] }
       ]
     }
   },

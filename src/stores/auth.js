@@ -10,6 +10,9 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {},
   actions: {
+    // login (email, password) {
+
+    // },
     logout (user, $router) {
       this.accessToken = ''
       this.isAdmin = false

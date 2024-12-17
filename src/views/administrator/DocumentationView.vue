@@ -4,7 +4,7 @@
       <v-col cols="8">
         <h4 class="text-uppercase">Report Templates</h4>
 
-        <v-list lines="two">
+        <v-list lines="two" class="my-4">
           <v-list-item
             v-for="(template, index) in templates"
             :key="index"
@@ -13,6 +13,10 @@
             <v-list-item-subtitle v-html="template.description"></v-list-item-subtitle>
           </v-list-item>
         </v-list>
+
+        <v-btn color="blue" size="small" variant="tonal">
+          Add Document
+        </v-btn>
       </v-col>
     </v-row>
 
@@ -54,12 +58,12 @@
 import { mapState } from 'pinia'
 import { useUserStore } from '@/stores/user'
 
-// TODO:
-// - upload report final, progress and PPM
-//
+// TOOD
+// 1. Upload report templates
+// 2. View submission by each group
 
 export default {
-  name: 'Report',
+  name: 'Documentation Management',
   data () {
     return {
       maxProgressReport: 8,
