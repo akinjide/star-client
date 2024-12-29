@@ -21,11 +21,58 @@ const routes = [
       requiresAuth: true
     },
     children: [
-      // Student
+      // All except Admin
       {
         path: '',
         name: 'home',
         component: () => import('../views/common/HomeView.vue')
+      },
+      {
+        path: 'evaluations',
+        children: [
+          {
+            path: '',
+            name: 'evaluations',
+            component: () => import('../views/common/EvaluationView.vue'),
+            meta: {
+              title: 'Star - Evaluations',
+              requiresAuth: true,
+              requireAdmin: false
+            }
+          },
+          {
+            path: ':team_id',
+            name: 'team_evaluation',
+            component: () => import('../views/common/SingleEvaluationView.vue'),
+            meta: {
+              title: 'Star - Team Evaluation',
+              requiresAuth: true,
+              requireAdmin: false
+            }
+          },
+          {
+            path: ':team_id/add',
+            name: 'add_team_evaluation',
+            component: () => import('../views/common/AddEvaluationView.vue'),
+            meta: {
+              title: 'Star - Team Evaluation',
+              requiresAuth: true,
+              requireAdmin: false
+            }
+          }
+        ]
+      },
+
+      // Student
+      {
+        path: 'tasks',
+        name: 'tasks',
+        component: () => import('../views/student/TaskView.vue'),
+        meta: {
+          title: 'Star - Tasks',
+          requiresAuth: true,
+          requireAdmin: false
+        }
       },
       {
         path: 'projects',
@@ -33,16 +80,6 @@ const routes = [
         component: () => import('../views/student/ProjectView.vue'),
         meta: {
           title: 'Star - Project',
-          requiresAuth: true,
-          requireAdmin: false
-        }
-      },
-      {
-        path: 'tasks',
-        name: 'tasks',
-        component: () => import('../views/student/TaskView.vue'),
-        meta: {
-          title: 'Star - Tasks',
           requiresAuth: true,
           requireAdmin: false
         }
@@ -67,12 +104,24 @@ const routes = [
           requireAdmin: false
         }
       },
+
+      // Supervisor
       {
-        path: 'evaluations',
-        name: 'evaluations',
-        component: () => import('../views/common/EvaluationView.vue'),
+        path: 'moderate/projects',
+        name: 'moderate_projects',
+        component: () => import('../views/supervisor/ProjectView.vue'),
         meta: {
-          title: 'Star - Evaluations',
+          title: 'Star - Project',
+          requiresAuth: true,
+          requireAdmin: false
+        }
+      },
+      {
+        path: 'moderate/tasks',
+        name: 'moderate_tasks',
+        component: () => import('../views/supervisor/TaskView.vue'),
+        meta: {
+          title: 'Star - Tasks',
           requiresAuth: true,
           requireAdmin: false
         }
@@ -118,10 +167,34 @@ const routes = [
           requiresAuth: true,
           requireAdmin: true
         }
+      },
+      {
+        path: 'manage/evaluations',
+        children: [
+          {
+            path: '',
+            name: 'evaluations_management',
+            component: () => import('../views/administrator/EvaluationView.vue'),
+            meta: {
+              title: 'Star - Evaluations Management',
+              requiresAuth: true,
+              requireAdmin: true
+            }
+          },
+          {
+            path: ':team_id',
+            name: 'team_evaluation_management',
+            component: () => import('../views/common/SingleEvaluationView.vue'),
+            meta: {
+              title: 'Star - Team Evaluation Management',
+              requiresAuth: true,
+              requireAdmin: true
+            }
+          }
+        ]
       }
     ]
   },
-
   {
     path: '/home',
     name: 'home_management',
@@ -151,14 +224,14 @@ router.beforeEach((to, from) => {
     }
   }
 
-  if (authStore.isAuthenticated && to.meta.requireAdmin && !authStore.isAdmin) {
+  if (authStore.isAuthenticated && to.meta.requireAdmin && !authStore.isAdministrator) {
     return {
       path: '/dashboard'
     }
   }
 
   if (to.path === '/' && authStore.isAuthenticated) {
-    if (authStore.isAdmin) {
+    if (authStore.isAdministrator) {
       return {
         path: '/home'
       }

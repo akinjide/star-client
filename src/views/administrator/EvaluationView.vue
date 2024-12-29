@@ -32,10 +32,7 @@
           elevation="4"
           class="pa-4 mb-6">
           <div class="pl-4">
-            <v-btn class="mr-2" size="x-small" color="green" variant="tonal" @click="goToPage(team, 'add_team_evaluation')" v-if="!hasEvaluation(team)">
-              Add Evaluation
-            </v-btn>
-            <v-btn class="mr-2" size="x-small" color="blue" variant="tonal" @click="goToPage(team, 'team_evaluation')" v-if="hasEvaluation(team)">
+            <v-btn class="mr-2" size="x-small" color="blue" variant="tonal" @click="goToPage(team)">
               View Evaluation
             </v-btn>
           </div>
@@ -106,14 +103,14 @@ export default {
   methods: {
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['getTeams']),
-    ...mapActions(useMainStore, ['getEvaluations']),
-    goToPage (team, name) {
+    goToPage (team) {
       this.$router.push({
-        name: name,
+        name: 'team_evaluation_management',
         params: { team_id: team.id }
       })
     },
     hasMembers (team) {
+      console.log(team)
       return team.members && team.members.length > 0 && team.members[0]
     },
     getTeamSupervisor (team) {
@@ -122,23 +119,11 @@ export default {
       }
 
       return 'No supervisor assigned yet'
-    },
-    hasEvaluation (team) {
-      if (this.evaluations.length) {
-        for (const evaluation of this.evaluations) {
-          if (team.id === evaluation.team_id && evaluation.evaluations) {
-            return true
-          }
-        }
-      }
-
-      return false
     }
   },
   async created () {
     await this.getUsers()
     await this.getTeams()
-    await this.getEvaluations()
   },
   computed: {
     ...mapState(useUserStore, ['user']),
@@ -146,7 +131,6 @@ export default {
     ...mapState(useMainStore, ['getStudents']),
     ...mapState(useMainStore, ['getSupervisors']),
     ...mapState(useMainStore, ['getImage']),
-    ...mapState(useMainStore, ['evaluations']),
     teamsCount () {
       if (this.teams) {
         return this.teams.length

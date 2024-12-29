@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer permanent location="right" width="300" class="py-1">
+  <v-navigation-drawer permanent location="right" width="300" class="py-1 d-print-none">
     <v-row align="center">
       <v-col cols="9">
         <v-list-item
@@ -22,12 +22,12 @@
     <v-row>
       <v-col>
         <v-card class="calendar-card ma-4" outlined>
-          <VCalendar borderless title-position="left" :attributes="attributes" />
+          <VCalendar borderless title-position="left" :attributes="populateCalendar()" />
         </v-card>
       </v-col>
     </v-row>
 
-    <v-row v-if="pendingTasks.length">
+    <v-row v-if="pendingTasks.length && isStudent">
       <v-col>
         <v-card class="tasks-card ma-4" outlined>
           <v-card-title class="dashboard-title">Pending Tasks</v-card-title>
@@ -36,7 +36,10 @@
             <v-list-item v-for="(task, index) in pendingTasks" :key="index" class="pb-4">
               <v-list-item-title>{{ task.task_name }}</v-list-item-title>
 
-              <v-list-item-subtitle>{{ endsAt(task.task_ends_at) }}</v-list-item-subtitle>
+              <v-list-item-subtitle>
+                <v-icon class="mr-1" color="warning" icon="mdi-clock"></v-icon>
+                {{ parseDateTime(task.task_ends_at) }}
+              </v-list-item-subtitle>
             </v-list-item>
           </v-list>
         </v-card>
@@ -48,9 +51,8 @@
 <script>
 import { mapState, mapActions } from 'pinia'
 
-import { useAuthStore } from '@/stores/auth'
 import { useDateFormat } from '@vueuse/core'
-import { useMainStore } from '@/stores/main'
+import { useAuthStore, useMainStore } from '@/stores'
 
 export default {
   name: 'RightSidebar',
@@ -75,42 +77,81 @@ export default {
         {
           highlight: {
             color: 'blue',
-            fillMode: 'light'
+            fillMode: 'outline'
           },
+          key: 'today',
           popover: {
             visibility: 'click',
-            label: 'Task 1: Deadline'
+            label: 'Another beautiful day!'
           },
           dates: [new Date()]
-        },
-        {
-          highlight: 'green',
-          dot: true,
-          dates: [[new Date(2024, 10, 8), new Date(2024, 10, 12)]],
-          popover: {
-            visibility: 'click',
-            label: 'Task 2: Deadline'
-          }
         }
       ]
     }
   },
   methods: {
     ...mapActions(useAuthStore, ['logout']),
-    endsAt (t) {
-      return useDateFormat(t, 'dddd, YYYY-MM-DD HH:mm a')
+    parseDateTime (t) {
+      return useDateFormat(t, 'ddd, YYYY-MM-DD HH:mm')
+    },
+    populateCalendar () {
+      if (this.tasks && this.tasks.length) {
+        for (const task of this.tasks) {
+          if (task.task_submitted_at) {
+            this.attributes.push({
+              highlight: 'green',
+              dates: [task.task_submitted_at],
+              popover: {
+                visibility: 'click',
+                label: task.task_name
+              }
+            })
+
+            continue
+          }
+
+          if (task.task_assigned_at === task.task_ends_at) {
+            this.attributes.push({
+              highlight: 'red',
+              dates: [[task.task_assigned_at, task.task_ends_at]],
+              popover: {
+                visibility: 'click',
+                label: task.task_name
+              }
+            })
+
+            continue
+          }
+
+          this.attributes.push({
+            highlight: 'blue',
+            dates: [[task.task_assigned_at, task.task_ends_at]],
+            popover: {
+              visibility: 'click',
+              label: task.task_name
+            }
+          })
+        }
+      }
+
+      return this.attributes
     }
   },
   computed: {
+    ...mapState(useAuthStore, ['isStudent']),
     ...mapState(useMainStore, ['getImage']),
     pendingTasks () {
-      return this.tasks.filter((task) => {
-        if (task.task_submitted_at) {
-          return false
-        }
+      if (this.tasks && this.tasks.length) {
+        return this.tasks.filter((task) => {
+          if (task.task_submitted_at) {
+            return false
+          }
 
-        return true
-      })
+          return true
+        })
+      }
+
+      return []
     },
     activeUserRole () {
       return this.getRoleName(this.user.role_id) || 'Logged in'

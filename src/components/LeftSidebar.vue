@@ -1,18 +1,18 @@
 <template>
-  <v-navigation-drawer app permanent Left class="left-sidebar py-1 px-5">
+  <v-navigation-drawer app permanent Left class="left-sidebar py-1 px-5 d-print-none">
     <v-list>
       <div>
         <v-list-subheader class="text-uppercase dashboard-title">Dashboard</v-list-subheader>
 
         <v-list-item
-          v-for="(item, index) in roleBasedMenu"
+          v-for="(menu, index) in roleBasedMenu"
           :key="index" nav
-          :active="item.name === $route.name"
-          :to="{name: item.name}"
-          :prepend-icon="item.icon"
+          :active="menu.name === $route.name"
+          :to="getRoute(menu)"
+          :prepend-icon="menu.icon"
         >
           <div class="d-flex align-center">
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-title>{{ menu.title }}</v-list-item-title>
           </div>
         </v-list-item>
       </div>
@@ -27,25 +27,52 @@ export default {
     user: {
       type: Object,
       required: true
+    },
+    route_data: {
+      type: Object,
+      required: true
     }
   },
   data () {
     return {
       menu: [
-        { title: 'Home', icon: 'mdi-home', name: 'home', allow: [4, 2] },
+        // All
+        { title: 'Home', icon: 'mdi-home', name: 'home', allow: [2, 3, 4] },
+        { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'moderate_projects', allow: [2] },
         { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'projects', allow: [4] },
         { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'tasks', allow: [4] },
-        { title: 'Reports', icon: 'mdi-file-document-outline', name: 'reports', allow: [4] },
+        { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'moderate_tasks', allow: [2] },
+        { title: 'Reports', icon: 'mdi-file-document-outline', name: 'reports', allow: [2, 4] },
         { title: 'Community', icon: 'mdi-forum-outline', name: 'community', allow: [4] },
+        { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'evaluations', allow: [2, 3] },
+        { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'team_evaluation', allow: [4], route_resolver: (p) => { return p.id } },
 
+        // Administrators
         { title: 'Home', icon: 'mdi-home', name: 'home_management', allow: [1] },
         { title: 'Users', icon: 'mdi-account-multiple-outline', name: 'user_management', allow: [1] },
         { title: 'Team', icon: 'mdi-account-group-outline', name: 'team_management', allow: [1] },
         { title: 'Project', icon: 'mdi-note-multiple-outline', name: 'project_management', allow: [1] },
         { title: 'Documentation', icon: 'mdi-file-document-multiple-outline', name: 'documentation', allow: [1] },
-
-        { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'evaluations', allow: [1, 2, 3] }
+        { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'evaluations_management', allow: [1] }
       ]
+    }
+  },
+  methods: {
+    getRoute (menu) {
+      if (menu.route_resolver) {
+        const id = menu.route_resolver(this.route_data)
+
+        if (id) {
+          return {
+            name: menu.name,
+            params: {
+              team_id: id
+            }
+          }
+        }
+      }
+
+      return { name: menu.name }
     }
   },
   computed: {
@@ -53,7 +80,14 @@ export default {
       const menu = []
       const filterFn = (roleId) => {
         return (m) => {
-          if (m.allow.includes(roleId)) { return true }
+          if (m.allow.includes(roleId)) {
+            if (m.route_resolver && !this.route_data.id) {
+              return false
+            }
+
+            return true
+          }
+
           return false
         }
       }

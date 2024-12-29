@@ -54,10 +54,10 @@
               <td>{{ getRoleName(user.role_id) }}</td>
               <td>{{ user.department }}</td>
               <td>
-                <v-btn class="mr-1" size="x-small" color="blue" variant="tonal" @click="select(user, 'edit_user')">
+                <v-btn class="mr-2" size="x-small" color="blue" variant="tonal" @click="select(user, 'edit_user')">
                   Edit
                 </v-btn>
-                <v-btn class="ml-1" size="x-small" color="red" variant="tonal" @click="remove(user)">
+                <v-btn size="x-small" color="red" variant="tonal" @click="remove(user)">
                   Delete
                 </v-btn>
               </td>
@@ -188,8 +188,7 @@
 
 <script>
 import { mapState, mapActions } from 'pinia'
-import { useUserStore } from '@/stores/user'
-import { useMainStore } from '@/stores/main'
+import { useUserStore, useMainStore } from '@/stores'
 import api from '@/api'
 
 export default {
@@ -204,9 +203,10 @@ export default {
   },
   components: {},
   methods: {
-    ...mapActions(useUserStore, ['getUsers']),
-    ...mapActions(useUserStore, ['createUser']),
-    ...mapActions(useUserStore, ['updateUser']),
+    ...mapActions(useMainStore, ['getUsers']),
+    ...mapActions(useMainStore, ['createUser']),
+    ...mapActions(useMainStore, ['updateUser']),
+    ...mapActions(useMainStore, ['deleteUser']),
     select (user, action) {
       this.dialog = true
       this.selectedUser = {
@@ -244,7 +244,10 @@ export default {
         }
       }
     },
-    remove () {
+    async remove (user) {
+      const response = await this.deleteUser(user.id)
+      console.log(response)
+      this.$router.go(this.$router.currentRoute)
     }
   },
   async created () {
@@ -252,8 +255,8 @@ export default {
   },
   computed: {
     ...mapState(useUserStore, ['user']),
-    ...mapState(useUserStore, ['users']),
-    ...mapState(useUserStore, ['getRoleName']),
+    ...mapState(useMainStore, ['users']),
+    ...mapState(useMainStore, ['getRoleName']),
     ...mapState(useMainStore, ['getRoles']),
     ...mapState(useMainStore, ['getImage']),
     usersCount () {

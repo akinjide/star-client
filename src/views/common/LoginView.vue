@@ -43,17 +43,17 @@
                 dense
                 required
               />
-              <v-row class="forgot-password">
+<!--               <v-row class="forgot-password">
                 <a href="#">Forgot your password?</a>
-              </v-row>
+              </v-row> -->
               <v-btn color="primary" block class="login-btn" @click="login">
                 Log in →
               </v-btn>
-              <v-row class="signup-link">
+<!--               <v-row class="signup-link">
                 <p>
                   You do not have an account? <a href="#">Create an account</a>
                 </p>
-              </v-row>
+              </v-row> -->
             </v-form>
           </div>
         </v-col>
@@ -64,10 +64,7 @@
 
 <script>
 import { mapActions } from 'pinia'
-
-import api from '@/api'
-import { useAuthStore } from '@/stores/auth'
-import { useUserStore } from '@/stores/user'
+import { useAuthStore, useUserStore } from '@/stores'
 
 export default {
   data () {
@@ -79,59 +76,27 @@ export default {
     }
   },
   methods: {
+    ...mapActions(useUserStore, ['getUser']),
+    ...mapActions(useAuthStore, ['authenticate']),
     async login () {
-      try {
-        this.hasError = false
+      this.hasError = false
 
-        const store = useAuthStore()
-        const response = await api.auth.login(this.email, this.password)
+      const { errorMessage, data } = await this.authenticate(this.email, this.password)
 
-        if (response && response.data) {
-          const {
-            data: {
-              role_id: roleId,
-              id,
-              token
-            }
-          } = response.data
-
-          store.$patch({
-            auth: response.data,
-            accessToken: token,
-            isAuthenticated: true,
-            isAdmin: roleId === 1
-          })
-
-          await this.getUser(id)
-
-          if (roleId === 1) {
-            return this.$router.push('/home')
-          }
-
-          return this.$router.push('/dashboard')
-        }
-
+      if (errorMessage) {
         this.hasError = true
-      } catch (error) {
-        console.log(error)
-        if (error && error.response) {
-          const {
-            response: {
-              data: {
-                errorMessage = null
-              } = {}
-            }
-          } = error
-
-          if (errorMessage) {
-            this.errorMessage = errorMessage
-          }
-        }
-
-        this.hasError = true
+        this.errorMessage = errorMessage
+        return
       }
-    },
-    ...mapActions(useUserStore, ['getUser'])
+
+      await this.getUser(data.id)
+
+      if (data.role_id === 1) {
+        return this.$router.push('/home')
+      }
+
+      return this.$router.push('/dashboard')
+    }
   }
 }
 </script>

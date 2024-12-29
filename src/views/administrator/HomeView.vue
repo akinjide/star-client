@@ -34,7 +34,7 @@
               </router-link>
             </v-btn>
             <v-btn variant="tonal" color="#6975EB" rounded="xl">
-              <router-link :to="{ name: 'evaluations' }">
+              <router-link :to="{ name: 'evaluations_management' }">
                 Evaluations
               </router-link>
             </v-btn>

@@ -31,8 +31,8 @@
         <v-card
           v-for="(team, index) in resultQuery"
           :key="index"
-          :title="team.team_name"
-          :subtitle="team.supervisor_name || 'No supervisor assigned yet' "
+          :title="team.name"
+          :subtitle="getTeamSupervisor(team)"
           elevation="4"
           class="pa-4 mb-6">
           <div class="pl-4">
@@ -74,6 +74,7 @@
                     class="ma-2"
                     color="orange"
                     v-if="member.is_lead"
+                    size="x-small"
                   >
                     Lead
                   </v-chip>
@@ -81,12 +82,13 @@
                     class="ma-2"
                     color="teal"
                     v-if="!member.is_lead"
+                    size="x-small"
                   >
                     Member
                   </v-chip>
                 </td>
                 <td>
-                  <v-btn class="ml-1" size="x-small" color="red" variant="tonal">
+                  <v-btn class="ml-1" size="x-small" color="red" variant="tonal" @click="removeMember(team, member)">
                     Remove
                   </v-btn>
                 </td>
@@ -190,12 +192,8 @@
 
 <script>
 import { mapState, mapActions } from 'pinia'
-import { useUserStore } from '@/stores/user'
-import { useMainStore } from '@/stores/main'
+import { useUserStore, useMainStore } from '@/stores'
 import api from '@/api'
-
-// TOOD
-// 1. Add students to group
 
 export default {
   name: 'Team Management',
@@ -204,13 +202,14 @@ export default {
       dialog: false,
       searchQuery: null,
       selectedTeam: null,
+      cleanSelectedTeam: null,
       progress: false
     }
   },
   components: {},
   methods: {
-    ...mapActions(useUserStore, ['getUsers']),
-    ...mapActions(useUserStore, ['getTeams']),
+    ...mapActions(useMainStore, ['getUsers']),
+    ...mapActions(useMainStore, ['getTeams']),
     select (team, action) {
       let lead = null
       const members = []
@@ -218,15 +217,21 @@ export default {
       if (team && team.members) {
         for (const member of team.members) {
           if (member.is_lead) {
-            lead = member.full_name
+            lead = member.member_id
             continue
           }
 
-          members.push(member)
+          members.push(member.member_id)
         }
       }
 
       this.dialog = true
+      this.cleanSelectedTeam = {
+        ...team,
+        lead: lead,
+        members: members
+      }
+
       this.selectedTeam = {
         ...team,
         lead: lead,
@@ -277,9 +282,53 @@ export default {
           }
         }
 
-        // if (team.action == 'edit_team') {
+        if (team.action === 'edit_team') {
+          const response = await api.teams.update(team.id, team)
+          console.log(response)
 
-        // }
+          if (response && response.data) {
+            const responses = []
+            const removeMembers = []
+            const addMembers = []
+            let newLeadId = null
+
+            for (const memberId of team.members) {
+              if (!this.cleanSelectedTeam.members.includes(memberId)) {
+                addMembers.push(memberId)
+              }
+            }
+
+            for (const memberId of this.cleanSelectedTeam.members) {
+              if (!team.members.includes(memberId)) {
+                removeMembers.push(memberId)
+              }
+            }
+
+            if (this.cleanSelectedTeam.lead !== team.lead) {
+              newLeadId = team.lead
+            }
+
+            if (newLeadId) {
+              responses.push(api.teams.removeMember(team.id, this.cleanSelectedTeam.lead))
+              responses.push(api.teams.addMember(team.id, { member_id: newLeadId, is_lead: true }))
+            }
+
+            for (const memberId of addMembers) {
+              responses.push(api.teams.addMember(team.id, { member_id: memberId, is_lead: false }))
+            }
+
+            for (const memberId of removeMembers) {
+              responses.push(api.teams.removeMember(team.id, memberId))
+            }
+
+            const result = await Promise.allSettled(responses)
+
+            if (result) {
+              this.dialog = false
+              this.$router.go(this.$router.currentRoute)
+            }
+          }
+        }
       } catch (err) {
 
       }
@@ -289,8 +338,18 @@ export default {
       console.log(response)
       this.$router.go(this.$router.currentRoute)
     },
+    async removeMember (team, member) {
+      console.log(team, member)
+    },
     hasMembers (team) {
       return team.members && team.members.length > 0 && team.members[0]
+    },
+    getTeamSupervisor (team) {
+      if (team.supervisor_full_name) {
+        return team.supervisor_title + ' ' + team.supervisor_full_name
+      }
+
+      return 'No supervisor assigned yet'
     }
   },
   async created () {
@@ -299,9 +358,9 @@ export default {
   },
   computed: {
     ...mapState(useUserStore, ['user']),
-    ...mapState(useUserStore, ['teams']),
-    ...mapState(useUserStore, ['getStudents']),
-    ...mapState(useUserStore, ['getSupervisors']),
+    ...mapState(useMainStore, ['teams']),
+    ...mapState(useMainStore, ['getStudents']),
+    ...mapState(useMainStore, ['getSupervisors']),
     ...mapState(useMainStore, ['getImage']),
     teamsCount () {
       if (this.teams) {
@@ -318,7 +377,7 @@ export default {
               return true
             }
 
-            if (item.supervisor_name.toLowerCase().includes(v)) {
+            if (item.supervisor_full_name.toLowerCase().includes(v)) {
               return true
             }
 

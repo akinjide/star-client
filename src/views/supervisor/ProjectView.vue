@@ -1,9 +1,7 @@
 <template>
   <v-container fluid>
     <v-row class="mt-4">
-      <v-col cols="4">
-        <h4>Manage Projects and Topics</h4>
-      </v-col>
+      <v-col cols="4"></v-col>
 
       <v-col cols="4">
         <v-text-field
@@ -56,10 +54,10 @@
               </td>
               <td>{{ project.team_name }}</td>
               <td>
-                <v-btn class="mr-2" color="green" size="x-small" variant="tonal" @click="select(project, 'assign_project')" v-if="projectStatus(project) === 'available'">
+                <v-btn class="mr-2" color="green" size="x-small" variant="tonal" @click="select(project, 'assign_project')" v-if="projectStatus(project) === 'available' && ownProject(project)">
                   Assign
                 </v-btn>
-                <v-btn size="x-small" color="blue" variant="tonal" @click="select(project, 'edit_project')">
+                <v-btn size="x-small" color="blue" variant="tonal" v-if="ownProject(project)">
                   Edit
                 </v-btn>
               </td>
@@ -156,7 +154,7 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="assignProjectDialog"
+      v-model="projectDialog"
       max-width="600"
     >
       <v-card
@@ -196,64 +194,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="assignProjectDialog = false"
-          ></v-btn>
-
-          <v-btn
-            color="primary"
-            text="Save"
-            variant="tonal"
-            @click="upsert(project)"
-          ></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
-
-  <!-- DIALOG -->
-  <div class="pa-4 text-center">
-    <v-dialog
-      v-model="editProjectDialog"
-      max-width="600"
-    >
-      <v-card
-        prepend-icon="mdi-account"
-        title="Edit Project"
-      >
-        <v-card-text>
-          <v-row dense>
-            <v-col cols="12" md="6" sm="6">
-              <v-text-field
-                label="Course Code*"
-                v-model="selectedProject.course_code"
-                required
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" md="6" sm="6">
-              <v-select
-                :items="unassignedTeams"
-                item-title="name"
-                item-value="id"
-                label="Team*"
-                v-model="selectedProject.team_id"
-                required
-              ></v-select>
-            </v-col>
-          </v-row>
-
-          <small class="text-caption text-medium-emphasis">*indicates required field</small>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            text="Close"
-            variant="plain"
-            @click="editProjectDialog = false"
+            @click="projectDialog = false"
           ></v-btn>
 
           <v-btn
@@ -274,20 +215,18 @@ import { useUserStore, useMainStore } from '@/stores'
 import api from '@/api'
 
 // TOOD
-// 1. change project group, supervisor and title
-// - grading submitted reports from team
-// - changing jury member assigned to group
+// 1. change project group, supervisor, title and topic
+// 2. grading submitted reports from team
+// 3. changing jury member assigned to group
 
 export default {
-  name: 'Project Management',
+  name: 'Project Moderation',
   data () {
     return {
       topicDialog: false,
-      assignProjectDialog: false,
-      editProjectDialog: false,
+      projectDialog: false,
       topic: {},
       project: {},
-      selectedProject: {},
       progress: false,
       searchQuery: null
     }
@@ -305,6 +244,9 @@ export default {
 
       return 'available'
     },
+    ownProject (project) {
+      return project.supervisor_id === this.user.id
+    },
     select (record, action) {
       if (action === 'add_topic') {
         this.topicDialog = true
@@ -315,19 +257,11 @@ export default {
       }
 
       if (action === 'assign_project') {
-        this.assignProjectDialog = true
+        this.projectDialog = true
         this.project = {
           ...record,
           name: '',
           course_code: '',
-          action: action
-        }
-      }
-
-      if (action === 'edit_project') {
-        this.editProjectDialog = true
-        this.selectedProject = {
-          ...record,
           action: action
         }
       }

@@ -26,7 +26,6 @@ request.interceptors.response.use(response => {
   return response
 }, async (error) => {
   const { config } = error
-  console.log(error)
 
   // Handle access token refresh for 401
   if (error.response && error.response.status === 401) {
@@ -42,10 +41,8 @@ request.interceptors.response.use(response => {
     }
   }
 
-  // const errorMsg = (error.response?.data?.error?.message || error) as string
   console.log(error.response?.data, 'catastropic error when accessing API')
-
-  return Promise.reject(error)
+  return Promise.reject(error.response)
 })
 
 export default request

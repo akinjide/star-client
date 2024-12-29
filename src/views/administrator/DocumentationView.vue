@@ -56,7 +56,7 @@
 
 <script>
 import { mapState } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from '@/stores'
 
 // TOOD
 // 1. Upload report templates

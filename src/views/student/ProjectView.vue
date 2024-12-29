@@ -1,5 +1,23 @@
 <template>
   <v-container fluid>
+    <v-row class="mt-4">
+      <v-col cols="4"></v-col>
+
+      <v-col cols="4">
+        <v-text-field
+          append-inner-icon="mdi-magnify"
+          density="compact"
+          label="Search"
+          variant="underlined"
+          hide-details
+          single-line
+          v-model="searchQuery"
+        ></v-text-field>
+      </v-col>
+
+      <v-col cols="4"></v-col>
+    </v-row>
+
     <v-row>
       <v-col cols="12">
         <v-table
@@ -8,33 +26,25 @@
         >
           <thead>
             <tr>
-              <th class="text-left text-uppercase">
-                Project Title
-              </th>
-              <th class="text-left text-uppercase">
-                Supervisor
-              </th>
-              <th class="text-left text-uppercase">
-                Availability
-              </th>
-              <th class="text-left text-uppercase">
-                Group
-              </th>
+              <th class="text-left text-uppercase">Title</th>
+              <th class="text-left text-uppercase">Supervisor</th>
+              <th class="text-left text-uppercase">Availability</th>
+              <th class="text-left text-uppercase">Team</th>
             </tr>
           </thead>
           <tbody>
             <tr
-              v-for="project in projects"
-              :key="project.project_title"
+              v-for="(project, index) in resultQuery"
+              :key="index"
             >
-              <td>{{ project.project_title }}</td>
-              <td>{{ project.supervisor_name }}</td>
+              <td>{{ project.topic_name }}</td>
+              <td>{{ project.supervisor_title + ' ' + project.supervisor_full_name }}</td>
               <td>
-                <v-chip class="ma-2 text-capitalize" :color="project.status == 'available' ? 'green' : 'red'" prepend-icon="mdi-circle">
-                  {{ project.status }}
+                <v-chip class="ma-2 text-capitalize" size="x-small" :color="projectStatus(project) === 'available' ? 'green' : 'red'" prepend-icon="mdi-circle">
+                  {{ projectStatus(project) }}
                 </v-chip>
               </td>
-              <td>{{ project.group_name }}</td>
+              <td>{{ project.team_name }}</td>
             </tr>
           </tbody>
         </v-table>
@@ -44,40 +54,67 @@
 </template>
 
 <script>
-import { mapState } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { mapState, mapActions } from 'pinia'
+import { useUserStore, useMainStore } from '@/stores'
 
 export default {
-  name: 'Project',
+  name: 'Projects',
   data () {
     return {
-      projects: [
-        {
-          project_title: 'Online Management Solution for Graduation Projects',
-          supervisor_name: 'Assoc. Prof. Dr. Cem Ergun',
-          status: 'unavailable',
-          group_name: 'Group 4'
-        },
-        {
-          project_title: 'Video Streaming Platform',
-          supervisor_name: 'Assoc. Prof. Dr. Guruc Oz',
-          status: 'available',
-          group_name: '-'
-        },
-        {
-          project_title: 'Image Processing',
-          supervisor_name: 'Prof. Dr. Mohammed Salamah',
-          status: 'available',
-          group_name: '-'
-        }
-      ]
+      topicDialog: false,
+      projectDialog: false,
+      topic: {},
+      project: {},
+      progress: false,
+      searchQuery: null
     }
   },
   components: {},
   methods: {
+    ...mapActions(useMainStore, ['getTopics']),
+    ...mapActions(useMainStore, ['getProjects']),
+    projectStatus (project) {
+      if (project.team_id) {
+        return 'unavailable'
+      }
+
+      return 'available'
+    }
+  },
+  async created () {
+    await this.getTopics()
+    await this.getProjects()
   },
   computed: {
-    ...mapState(useUserStore, ['user'])
+    ...mapState(useUserStore, ['user']),
+    ...mapState(useMainStore, ['projects']),
+    ...mapState(useMainStore, ['getSupervisors']),
+    projectCount () {
+      if (this.projects) {
+        return this.projects.length
+      }
+
+      return 0
+    },
+    resultQuery () {
+      if (this.searchQuery) {
+        return this.projects.filter((item) => {
+          return this.searchQuery.toLowerCase().split(' ').every((v) => {
+            if (
+              item.topic_name.toLowerCase().includes(v) ||
+              item.topic_description.toLowerCase().includes(v) ||
+              item.supervisor_full_name.toLowerCase().includes(v)
+            ) {
+              return true
+            }
+
+            return false
+          })
+        })
+      } else {
+        return this.projects
+      }
+    }
   }
 }
 </script>

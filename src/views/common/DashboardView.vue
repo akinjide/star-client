@@ -4,7 +4,7 @@
       <v-container fluid>
         <v-row>
           <v-col cols="2">
-            <LeftSidebar :user="user" />
+            <LeftSidebar :user="user" :route_data="userTeam" />
           </v-col>
 
           <v-col cols="8">
@@ -16,7 +16,7 @@
          </v-col>
 
           <v-col cols="2">
-            <RightSidebar :tasks="tasks" :user="user" :getRoleName="getRoleName" />
+            <RightSidebar :tasks="userTasks" :user="user" :getRoleName="getRoleName" />
           </v-col>
         </v-row>
       </v-container>
@@ -30,7 +30,7 @@ import { mapState, mapActions } from 'pinia'
 import HeadBar from '@/components/HeadBar.vue'
 import LeftSidebar from '@/components/LeftSidebar.vue'
 import RightSidebar from '@/components/RightSidebar.vue'
-import { useUserStore } from '@/stores/user'
+import { useUserStore, useMainStore } from '@/stores'
 
 export default {
   name: 'Dashboard',
@@ -43,16 +43,22 @@ export default {
     RightSidebar
   },
   methods: {
-    ...mapActions(useUserStore, ['getUserTasks']),
-    ...mapActions(useUserStore, ['getUser'])
+    ...mapActions(useUserStore, ['getUser']),
+    ...mapActions(useMainStore, ['getUserTasks']),
+    ...mapActions(useMainStore, ['getTeamByMember'])
   },
   async created () {
     await this.getUserTasks(this.user.id)
+
+    if (this.user.role_id === 4) {
+      await this.getTeamByMember(this.user.id)
+    }
   },
   computed: {
-    ...mapState(useUserStore, ['tasks']),
     ...mapState(useUserStore, ['user']),
-    ...mapState(useUserStore, ['getRoleName'])
+    ...mapState(useMainStore, ['userTasks']),
+    ...mapState(useMainStore, ['userTeam']),
+    ...mapState(useMainStore, ['getRoleName'])
   }
 }
 </script>

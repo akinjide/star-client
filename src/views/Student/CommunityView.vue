@@ -5,27 +5,37 @@
       no-gutters
     >
       <v-col cols="12" style="min-height: 620px; max-height: 620px; overflow-y: scroll;">
-        <v-list
-          :items="messages"
-          lines="three"
-          item-props
-        >
-          <template v-slot:subtitle="{ subtitle }">
+        <v-list lines="two">
+          <v-list-item
+            v-for="(message, index) in parsedMessages"
+            :key="index"
+            :prependAvatar="message.avatar"
+          >
             <div>
-              <p class="text-caption">{{ timeAgo(subtitle.created_at) }}</p>
+              <div class="flex-row d-flex align-end">
+                <v-list-item-title class="font-weight-medium">
+                  <v-chip :color="message.subtitle.color" variant="tonal" label size="small">
+                    {{ message.title }}
+                  </v-chip>
+                </v-list-item-title>
 
-              <v-chip size="large" class="py-2 px-4 rounded-ts-sm" variant="flat" :color="subtitle.color">
-                <div v-html="subtitle.message"></div>
-              </v-chip>
+                <v-list-item-subtitle class="px-2 text-caption">
+                  {{ timeAgo(message.subtitle.created_at) }}
+                </v-list-item-subtitle>
+              </div>
+
+              <div class="pt-2">
+                <p>{{ message.subtitle.text }}</p>
+              </div>
             </div>
-          </template>
+          </v-list-item>
         </v-list>
       </v-col>
 
       <v-col cols="12">
         <v-card elevation="2" class="pa-6 mt-2">
           <div class="d-flex align-center mb-4">
-            <v-avatar :image="user.image"></v-avatar>
+            <v-avatar :image="getImage(user.image)"></v-avatar>
             <h4 class="mx-4">{{ user.full_name }}</h4>
           </div>
 
@@ -45,7 +55,7 @@
 
 <script>
 import { mapState, mapActions } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { useUserStore, useMainStore } from '@/stores'
 import { useTimeAgo } from '@vueuse/core'
 
 export default {
@@ -57,10 +67,13 @@ export default {
   },
   components: {},
   methods: {
-    ...mapActions(useUserStore, ['getMessages']),
-    ...mapActions(useUserStore, ['createMessage']),
+    ...mapActions(useMainStore, ['getMessages']),
+    ...mapActions(useMainStore, ['createMessage']),
     timeAgo (t) {
       return useTimeAgo(t)
+    },
+    parseSubtitle () {
+
     },
     async create (message) {
       const response = await this.createMessage(message)
@@ -76,7 +89,20 @@ export default {
   },
   computed: {
     ...mapState(useUserStore, ['user']),
-    ...mapState(useUserStore, ['messages'])
+    ...mapState(useMainStore, ['messages']),
+    ...mapState(useMainStore, ['getImage']),
+    parsedMessages () {
+      if (this.messages.length) {
+        return this.messages.map((message) => {
+          return {
+            ...message,
+            avatar: this.getImage(message.avatar)
+          }
+        })
+      }
+
+      return []
+    }
   }
 }
 </script>

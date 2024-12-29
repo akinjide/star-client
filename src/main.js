@@ -19,6 +19,7 @@ app.use(pinia)
 app.use(router)
 app.use(vuetify)
 app.use(VCalendar, {})
+
 app.mount('#app')
 
 const authStore = useAuthStore()

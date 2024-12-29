@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app color="white" flat class="header" elevation="1">
+  <v-app-bar app color="white" flat class="header d-print-none" elevation="1">
     <v-toolbar-title class="header-title text-uppercase font-weight-medium">{{ headBarName }}</v-toolbar-title>
   </v-app-bar>
 </template>
