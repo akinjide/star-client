@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row class="mt-4">
+    <v-row>
       <v-col cols="4"></v-col>
 
       <v-col cols="4">
@@ -16,11 +16,16 @@
       </v-col>
 
       <v-col cols="4">
-        <div class="d-flex justify-end">
+        <div class="d-flex justify-end align-center">
           <h4 class="mx-4">{{ tasksCount }} Tasks(s)</h4>
-          <v-btn class="ml-2" color="blue" size="small" variant="tonal" @click="select({}, 'add_task')">
-            Add Task
-          </v-btn>
+
+          <IconButton
+            tooltipText="Add Task"
+            color="blue"
+            size="small"
+            icon="mdi-playlist-plus"
+            @action="select({}, 'add_task')"
+          ></IconButton>
         </div>
       </v-col>
     </v-row>
@@ -30,13 +35,10 @@
         <v-table
           height="100vh"
           fixed-header
-          density="compact"
         >
           <thead>
             <tr>
-              <th class="text-left text-uppercase">Project Name</th>
               <th class="text-left text-uppercase">Student Name</th>
-              <th class="text-left text-uppercase">Team Name</th>
               <th class="text-left text-uppercase">Task Name</th>
               <th class="text-left text-uppercase">Grade</th>
               <th class="text-left text-uppercase">Assigned</th>
@@ -51,20 +53,58 @@
               v-for="(task, index) in tasks"
               :key="index"
             >
-              <td>{{ task.project_name }}</td>
               <td>{{ task.user_full_name }}</td>
-              <td>{{ task.team_name }}</td>
               <td>{{ task.task_name }}</td>
               <td>{{ task.task_grade }}</td>
-              <td>{{ parseDateTime(task.task_assigned_at) }}</td>
-              <td>{{ parseDateTime(task.task_ends_at) }}</td>
-              <td>{{ parseDateTime(task.task_submitted_at) }}</td>
+              <td>{{ $parseDateTime(task.task_assigned_at) }}</td>
+              <td>{{ $parseDateTime(task.task_ends_at) }}</td>
+              <td>{{ $parseDateTime(task.task_submitted_at) }}</td>
               <td>
-                <v-icon v-if="!task.task_submitted_at" color="warning" icon="mdi-clock"></v-icon>
+                <v-icon v-if="!task.task_submitted_at && new Date(task.task_ends_at) > new Date()" color="warning" icon="mdi-clock"></v-icon>
+                <v-icon v-if="!task.task_submitted_at && new Date(task.task_ends_at) <= new Date()" color="red" icon="mdi-clock-alert"></v-icon>
                 <v-icon v-if="task.task_submitted_at" color="success" icon="mdi-checkbox-marked-circle"></v-icon>
               </td>
               <td>
-                <v-btn class="ml-1" size="x-small" color="blue" variant="tonal">View</v-btn>
+                <div class="d-flex">
+                  <IconButton
+                    tooltipText="Edit Task"
+                    color="green"
+                    icon="mdi-pencil-plus-outline"
+                    @action="select({}, 'add_task')"
+                    v-if="!task.task_submitted_at"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="Grade Task"
+                    color="green"
+                    icon="mdi-star"
+                    @action="select(task, 'grade_task')"
+                    v-if="task.task_submitted_at && !task.task_grade"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="Add Comment"
+                    color="orange"
+                    icon="mdi-comment-edit-outline"
+                    @action="select(task, 'add_comment')"
+                    v-if="!task.task_comment"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="View Comment"
+                    color="blue-grey"
+                    icon="mdi-comment-eye-outline"
+                    @action="select(task, 'view_comment')"
+                    v-if="task.task_comment"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="View Task"
+                    color="blue-grey"
+                    icon="mdi-eye-outline"
+                    @action="select(task, 'view_task')"
+                  ></IconButton>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -76,7 +116,7 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="addTaskDialog"
+      v-model="dialog.add_task"
       max-width="600"
     >
       <v-card
@@ -102,8 +142,16 @@
             </v-col>
 
             <v-col cols="12" md="12" sm="12">
+              <v-textarea
+                label="(Optional) Notes"
+                v-model="task.raw_text"
+                required
+              ></v-textarea>
+            </v-col>
+
+            <v-col cols="12" md="12" sm="12">
               <v-select
-                :items="getStudents"
+                :items="supervisorStudents"
                 item-title="full_name"
                 item-value="id"
                 label="Student*"
@@ -129,7 +177,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="addTaskDialog = false"
+            @click="dialog.add_task = false"
           ></v-btn>
 
           <v-btn
@@ -142,48 +190,115 @@
       </v-card>
     </v-dialog>
   </div>
+
+  <PreviewDialog
+    :view="dialog.view_task"
+    :header="{
+      icon: 'mdi-information',
+      title: task.task_name
+    }"
+    :body="{
+      name: task.task_description,
+      text: task.task_raw_text ? task.task_raw_text : 'No additional note :)'
+    }"
+    @close="dialog.view_task = false"
+  />
+
+  <PreviewDialog
+    :view="dialog.view_comment"
+    :header="{
+      icon: 'mdi-comment-text',
+      title: 'Comment'
+    }"
+    :body="{
+      name: task.task_name,
+      text: task.task_comment ? task.task_comment : 'No comment :)'
+    }"
+    @close="dialog.view_comment = false"
+  />
+
+  <InputDialog
+    :view="dialog.grade_task"
+    :header="{
+      icon: 'mdi-star',
+      title: 'Grade'
+    }"
+    :body="{
+      name: '',
+      label: 'Grade task'
+    }"
+    @close="dialog.grade_task = false"
+    @confirm="grade"
+  />
+
+  <InputDialog
+    :view="dialog.add_comment"
+    :header="{
+      icon: 'mdi-comment-edit',
+      title: 'Comment'
+    }"
+    :body="{
+      name: '',
+      label: 'Leave comment'
+    }"
+    @close="dialog.add_comment = false"
+    @confirm="comment"
+  />
 </template>
 
 <script>
 import { mapState, mapActions } from 'pinia'
 import { DatePicker } from 'v-calendar'
+
+import IconButton from '@/components/IconButton'
+import InputDialog from '@/components/InputDialog'
+import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
-import { useDateFormat } from '@vueuse/core'
 
 export default {
   name: 'Tasks',
   data () {
     return {
-      addTaskDialog: false,
+      dialog: {
+        add_task: false,
+        view_task: false,
+        add_comment: false,
+        view_comment: false,
+        grade_task: false
+      },
       searchQuery: null,
       task: {}
     }
   },
   components: {
-    DatePicker
+    DatePicker,
+    IconButton,
+    InputDialog,
+    PreviewDialog
   },
   methods: {
     ...mapActions(useMainStore, ['addTask']),
+    ...mapActions(useMainStore, ['updateTask']),
     ...mapActions(useMainStore, ['getTasks']),
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['getTeams']),
     ...mapActions(useMainStore, ['getUserTasks']),
     ...mapActions(useMainStore, ['getProjects']),
-    parseDateTime (t) {
-      if (!t) {
-        return ''
-      }
-
-      return useDateFormat(t, 'ddd, YYYY-MM-DD')
-    },
+    ...mapActions(useMainStore, ['getTeamBySupervisor']),
+    ...mapActions(useMainStore, ['getSupervisorStudents']),
     select (record, action) {
       if (action === 'add_task') {
-        this.addTaskDialog = true
+        this.dialog.add_task = true
         this.task = {
           ...record,
           ends_at: new Date(),
           action: action
         }
+      }
+
+      if (action === 'view_task') {
+        this.task = record
+        this.dialog.view_task = true
       }
 
       if (action === 'edit_task') {
@@ -195,15 +310,48 @@ export default {
         //   action: action
         // }
       }
+
+      if (action === 'view_comment') {
+        this.task = record
+        this.dialog.view_comment = true
+      }
+
+      if (action === 'add_comment') {
+        this.task = record
+        this.dialog.add_comment = true
+      }
+
+      if (action === 'grade_task') {
+        this.task = record
+        this.dialog.grade_task = true
+      }
     },
     async upsert (record) {
       if (record.action === 'add_task') {
         const response = await this.addTask(record)
 
         if (response) {
-          this.addTaskDialog = false
+          this.dialog.add_task = false
           this.$router.go(this.$router.currentRoute)
         }
+      }
+    },
+    async grade (value) {
+      const response = await this.updateTask(this.task.task_id, { grade: value })
+
+      if (response) {
+        this.dialog.grade_task = false
+        this.$router.go(this.$router.currentRoute)
+      }
+    },
+    async comment (value) {
+      const response = await this.updateTask(this.task.task_id, {
+        comment: value
+      })
+
+      if (response) {
+        this.dialog.add_comment = false
+        this.$router.go(this.$router.currentRoute)
       }
     }
   },
@@ -212,6 +360,7 @@ export default {
     await this.getUsers()
     await this.getTasks()
     await this.getProjects()
+    await this.getSupervisorStudents(this.user.id)
   },
   computed: {
     ...mapState(useUserStore, ['user']),
@@ -219,6 +368,7 @@ export default {
     ...mapState(useMainStore, ['projects']),
     ...mapState(useMainStore, ['userTasks']),
     ...mapState(useMainStore, ['getStudents']),
+    ...mapState(useMainStore, ['supervisorStudents']),
     resultQuery () {
       if (this.searchQuery) {
         return this.tasks.filter((item) => {

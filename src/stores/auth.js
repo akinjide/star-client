@@ -2,11 +2,12 @@ import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 
 import api from '@/api'
-
-const ADMINISTRATOR = 1
-const SUPERVISOR = 2
-const COMMITTEE_MEMBER = 3
-const STUDENT = 4
+import {
+  ADMINISTRATOR_ID,
+  SUPERVISOR_ID,
+  COMMITTEE_MEMBER_ID,
+  STUDENT_ID
+} from '@/stores/constants'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -20,28 +21,28 @@ export const useAuthStore = defineStore('auth', {
       return state.isAuth
     },
     isAdministrator (state) {
-      if (state.auth.role_id && state.auth.role_id === ADMINISTRATOR) {
+      if (state.auth.role_id && state.auth.role_id === ADMINISTRATOR_ID) {
         return true
       }
 
       return false
     },
     isSupervisor (state) {
-      if (state.auth.role_id && state.auth.role_id === SUPERVISOR) {
+      if (state.auth.role_id && state.auth.role_id === SUPERVISOR_ID) {
         return true
       }
 
       return false
     },
     isCommitteeMember (state) {
-      if (state.auth.role_id && state.auth.role_id === COMMITTEE_MEMBER) {
+      if (state.auth.role_id && state.auth.role_id === COMMITTEE_MEMBER_ID) {
         return true
       }
 
       return false
     },
     isStudent (state) {
-      if (state.auth.role_id && state.auth.role_id === STUDENT) {
+      if (state.auth.role_id && state.auth.role_id === STUDENT_ID) {
         return true
       }
 
@@ -64,12 +65,12 @@ export const useAuthStore = defineStore('auth', {
           this.auth = data
           this.accessToken = token
           this.isAuth = true
-          this.isAdmin = roleId === 1
+          this.isAdmin = roleId === ADMINISTRATOR_ID
         }
 
         return result
-      } catch (error) {
-        return api.handleError(error)
+      } catch (err) {
+        return api.handleError(err)
       }
     },
     logout (user, $router) {

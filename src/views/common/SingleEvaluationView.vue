@@ -1,8 +1,14 @@
 <template>
   <v-container fluid>
-    <v-row class="mt-4">
+    <v-row>
       <v-col cols="12">
-        <v-btn variant="tonal" prepend-icon="mdi-printer" @click="generatePDF()" class="np-btn">Generate PDF</v-btn>
+        <IconButton
+          tooltipText="Generate PDF"
+          color="blue-grey"
+          size="small"
+          icon="mdi-printer"
+          @action="generatePDF()"
+        ></IconButton>
       </v-col>
     </v-row>
 
@@ -39,12 +45,12 @@
 
                 <tr>
                   <td class="text-left">Course Code:</td>
-                  <td class="text-end">{{ project.course_code }}</td>
+                  <td class="text-end">{{ project.project_course_code }}</td>
                 </tr>
 
                 <tr>
                   <td class="text-left">Year-Semester:</td>
-                  <td class="text-end"></td>
+                  <td class="text-end">{{ project.project_year }}-{{ project.project_semester }}</td>
                 </tr>
 
                 <tr>
@@ -54,7 +60,7 @@
 
                 <tr>
                   <td class="text-left">Date of Presentation:</td>
-                  <td class="text-end">{{ project.project_presentation_at }}</td>
+                  <td class="text-end">{{ $parseDateTime(project.project_presentation_at) }}</td>
                 </tr>
 
                 <tr>
@@ -190,6 +196,8 @@
 <script>
 import html2pdf from 'html2pdf.js'
 import { mapState, mapActions } from 'pinia'
+
+import IconButton from '@/components/IconButton'
 import { useUserStore, useMainStore } from '@/stores'
 
 export default {
@@ -201,7 +209,9 @@ export default {
       teamId: null
     }
   },
-  components: {},
+  components: {
+    IconButton
+  },
   methods: {
     ...mapActions(useMainStore, ['getEvaluation']),
     ...mapActions(useMainStore, ['getProjects']),

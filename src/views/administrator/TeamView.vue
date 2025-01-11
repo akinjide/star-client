@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row class="mt-4">
+    <v-row>
       <v-col cols="4">
         <h4>Manage Teams</h4>
       </v-col>
@@ -18,10 +18,16 @@
       </v-col>
 
       <v-col cols="4">
-        <div class="d-flex justify-end">
+        <div class="d-flex justify-end align-center">
           <h4 class="mx-4">{{ teamsCount }} Team(s)</h4>
-          <v-btn color="blue" size="small" variant="tonal" @click="select({}, 'add_team')">Add Team
-          </v-btn>
+
+          <IconButton
+            tooltipText="Add Team"
+            color="blue"
+            size="small"
+            icon="mdi-account-multiple-plus-outline"
+            @action="select({}, 'add_team')"
+          ></IconButton>
         </div>
       </v-col>
     </v-row>
@@ -35,13 +41,20 @@
           :subtitle="getTeamSupervisor(team)"
           elevation="4"
           class="pa-4 mb-6">
-          <div class="pl-4">
-            <v-btn class="mr-2" size="x-small" color="blue" variant="tonal" @click="select(team, 'edit_team')">
-              Edit
-            </v-btn>
-            <v-btn size="x-small" color="red" variant="tonal" @click="remove(team)">
-              Delete
-            </v-btn>
+          <div class="pl-2">
+            <IconButton
+              tooltipText="Edit Team"
+              color="green"
+              icon="mdi-pencil-plus-outline"
+              @action="select(team, 'edit_team')"
+            ></IconButton>
+
+            <IconButton
+              tooltipText="Remove Team"
+              color="red"
+              icon="mdi-account-multiple-remove-outline"
+              @action="remove(team)"
+            ></IconButton>
           </div>
 
           <v-table
@@ -88,9 +101,12 @@
                   </v-chip>
                 </td>
                 <td>
-                  <v-btn class="ml-1" size="x-small" color="red" variant="tonal" @click="removeMember(team, member)">
-                    Remove
-                  </v-btn>
+                  <IconButton
+                    tooltipText="Remove Member"
+                    color="red"
+                    icon="mdi-account-minus-outline"
+                    @action="removeMember(team, member)"
+                  ></IconButton>
                 </td>
               </tr>
             </tbody>
@@ -99,7 +115,76 @@
       </v-col>
     </v-row>
   </v-container>
-
+<!--
+  <Dialog
+    :view="dialog"
+    :header="{
+      icon: 'mdi-account',
+      title: 'Add Team'
+    }"
+    :fields = "[
+      {
+        label: 'Name*',
+        type: 'text-field',
+        col: '12',
+        model: selectedTeam.name,
+        required: true
+      },
+      {
+        label: 'Description',
+        type: 'textarea',
+        col: '12',
+        model: selectedTeam.description,
+        required: false
+      },
+      {
+        label: 'Image',
+        placeholder: 'Pick an image',
+        type: 'file-input',
+        col: '6',
+        icon: 'mdi-camera',
+        accept: 'image/png, image/jpeg, image/bmp',
+        model: selectedTeam.file,
+        loading: progress,
+        required: false
+      },
+      {
+        label: 'Team Lead*',
+        type: 'select',
+        col: '6',
+        model: selectedTeam.lead,
+        items: getStudents,
+        item: {
+          title: 'full_name',
+          value: 'id'
+        },
+        required: true,
+        clearable: false,
+        multiple: false,
+        chips: false
+      },
+      {
+        label: 'Students*',
+        type: 'select',
+        col: '12',
+        model: selectedTeam.memb
+        ers,
+        value: null,
+        items: getStudents,
+        item: {
+          title: 'full_name',
+          value: 'id'
+        },
+        required: true,
+        clearable: true,
+        multiple: true,
+        chips: true
+      }
+    ]"
+    @close="dialog = false"
+    @save="upsert"
+  ></Dialog>
+ -->
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
@@ -140,7 +225,7 @@
 
             <v-col cols="12" md="6" sm="6">
               <v-select
-                :items="getStudents"
+                :items="studentsWithoutTeam"
                 item-title="full_name"
                 item-value="id"
                 label="Team Lead*"
@@ -151,7 +236,7 @@
 
             <v-col cols="12" md="12" sm="12">
               <v-select
-                :items="getStudents"
+                :items="studentsWithoutTeam"
                 item-title="full_name"
                 item-value="id"
                 label="Students*"
@@ -192,6 +277,9 @@
 
 <script>
 import { mapState, mapActions } from 'pinia'
+
+import IconButton from '@/components/IconButton'
+// import Dialog from '@/components/Dialog'
 import { useUserStore, useMainStore } from '@/stores'
 import api from '@/api'
 
@@ -201,12 +289,15 @@ export default {
     return {
       dialog: false,
       searchQuery: null,
-      selectedTeam: null,
+      selectedTeam: {},
       cleanSelectedTeam: null,
       progress: false
     }
   },
-  components: {},
+  components: {
+    IconButton
+    // Dialog
+  },
   methods: {
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['getTeams']),
@@ -244,7 +335,6 @@ export default {
         if (team.file) {
           const response = await api.upload.create(team.file, 'images', event => {
             this.progress = true
-            console.log(Math.round((100 * event.loaded) / event.total))
           })
 
           this.progress = false
@@ -339,7 +429,9 @@ export default {
       this.$router.go(this.$router.currentRoute)
     },
     async removeMember (team, member) {
-      console.log(team, member)
+      const response = await api.teams.removeMember(team.id, member.member_id)
+      console.log(response)
+      this.$router.go(this.$router.currentRoute)
     },
     hasMembers (team) {
       return team.members && team.members.length > 0 && team.members[0]
@@ -387,6 +479,37 @@ export default {
       } else {
         return this.teams
       }
+    },
+    studentsWithoutTeam () {
+      const studentsWithoutTeam = []
+      const currentTeamMembers = []
+      const studentsWithTeam = []
+
+      if (this.teams && this.teams.length) {
+        for (const team of this.teams) {
+          if (team.members && team.members.length) {
+            for (const member of team.members) {
+              studentsWithTeam.push(member.member_id)
+            }
+          }
+        }
+
+        if (this.selectedTeam) {
+          for (const student of this.getStudents) {
+            if (this.selectedTeam.members.includes(student.id) || this.selectedTeam.lead === student.id) {
+              currentTeamMembers.push(student)
+            }
+          }
+        }
+
+        for (const student of this.getStudents) {
+          if (!studentsWithTeam.includes(student.id)) {
+            studentsWithoutTeam.push(student)
+          }
+        }
+      }
+
+      return studentsWithoutTeam.concat(currentTeamMembers)
     }
   }
 }

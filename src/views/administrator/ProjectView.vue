@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row class="mt-4">
+    <v-row>
       <v-col cols="4">
         <h4>Manage Projects and Topics</h4>
       </v-col>
@@ -18,11 +18,16 @@
       </v-col>
 
       <v-col cols="4">
-        <div class="d-flex justify-end">
+        <div class="d-flex justify-end align-center">
           <h4 class="mx-4">{{ projectCount }} Project(s)</h4>
-          <v-btn class="ml-2" color="blue" size="small" variant="tonal" @click="select({}, 'add_topic')">
-            Add Topic
-          </v-btn>
+
+          <IconButton
+            tooltipText="Add Topic"
+            color="blue"
+            size="small"
+            icon="mdi-file-plus-outline"
+            @action="select({}, 'add_topic')"
+          ></IconButton>
         </div>
       </v-col>
     </v-row>
@@ -56,12 +61,29 @@
               </td>
               <td>{{ project.team_name }}</td>
               <td>
-                <v-btn class="mr-2" color="green" size="x-small" variant="tonal" @click="select(project, 'assign_project')" v-if="projectStatus(project) === 'available'">
-                  Assign
-                </v-btn>
-                <v-btn size="x-small" color="blue" variant="tonal" @click="select(project, 'edit_project')">
-                  Edit
-                </v-btn>
+                <div class="d-flex">
+                  <IconButton
+                    tooltipText="Assign Topic"
+                    color="orange"
+                    icon="mdi-account-multiple-plus-outline"
+                    @action="select(project, 'assign_project')"
+                    v-if="projectStatus(project) === 'available'"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="Edit Topic and Project"
+                    color="green"
+                    icon="mdi-file-document-edit-outline"
+                    @action="select(project, 'edit_project')"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="View Topic"
+                    color="blue-grey"
+                    icon="mdi-file-eye-outline"
+                    @action="select(project, 'view_topic')"
+                  ></IconButton>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -164,26 +186,50 @@
         title="Assign Project"
       >
         <v-card-text>
-          <v-row dense>
-            <v-col cols="12" md="6" sm="6">
-              <v-text-field
-                label="Course Code*"
-                v-model="project.course_code"
-                required
-              ></v-text-field>
-            </v-col>
+          <v-form v-model="assignForm">
+            <v-row dense>
+              <v-col cols="12" md="6" sm="6">
+                <v-text-field
+                  label="Course Code*"
+                  v-model="project.course_code"
+                  :rules="[rules.required]"
+                  required
+                ></v-text-field>
+              </v-col>
 
-            <v-col cols="12" md="6" sm="6">
-              <v-select
-                :items="unassignedTeams"
-                item-title="name"
-                item-value="id"
-                label="Team*"
-                v-model="project.team_id"
-                required
-              ></v-select>
-            </v-col>
-          </v-row>
+              <v-col cols="12" md="6" sm="6">
+                <v-select
+                  label="Semester*"
+                  :items="['Spring', 'Fall']"
+                  v-model="project.semester"
+                  :rules="[rules.required]"
+                  required
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-select
+                  label="Year*"
+                  :items="years"
+                  v-model="project.year"
+                  :rules="[rules.required]"
+                  required
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-select
+                  :items="unassignedTeams"
+                  item-title="name"
+                  item-value="id"
+                  label="Team*"
+                  v-model="project.team_id"
+                  :rules="[rules.required]"
+                  required
+                ></v-select>
+              </v-col>
+            </v-row>
+          </v-form>
 
           <small class="text-caption text-medium-emphasis">*indicates required field</small>
         </v-card-text>
@@ -200,6 +246,7 @@
           ></v-btn>
 
           <v-btn
+            :disabled="!assignForm"
             color="primary"
             text="Save"
             variant="tonal"
@@ -226,6 +273,7 @@
               <v-text-field
                 label="Course Code*"
                 v-model="selectedProject.course_code"
+                :rules="[rules.required]"
                 required
               ></v-text-field>
             </v-col>
@@ -237,6 +285,7 @@
                 item-value="id"
                 label="Team*"
                 v-model="selectedProject.team_id"
+                :rules="[rules.required]"
                 required
               ></v-select>
             </v-col>
@@ -266,10 +315,28 @@
       </v-card>
     </v-dialog>
   </div>
+
+  <!-- DIALOG -->
+  <PreviewDialog
+    :view="viewTopic"
+    :header="{
+      icon: 'mdi-information',
+      title: 'Topic Information'
+    }"
+    :body="{
+      name: project.topic_name,
+      text: project.topic_description,
+      url: getDocument(project.topic_url)
+    }"
+    @close="viewTopic = false"
+  />
 </template>
 
 <script>
 import { mapState, mapActions } from 'pinia'
+
+import IconButton from '@/components/IconButton'
+import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
 import api from '@/api'
 
@@ -284,15 +351,24 @@ export default {
     return {
       topicDialog: false,
       assignProjectDialog: false,
+      assignForm: false,
       editProjectDialog: false,
+      viewTopic: false,
       topic: {},
       project: {},
       selectedProject: {},
       progress: false,
-      searchQuery: null
+      years: ['2024', '2025', '2026', '2027', '2028', '2029', '2030'],
+      searchQuery: null,
+      rules: {
+        required: value => !!value || 'Field is required'
+      }
     }
   },
-  components: {},
+  components: {
+    IconButton,
+    PreviewDialog
+  },
   methods: {
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['getTeams']),
@@ -306,6 +382,11 @@ export default {
       return 'available'
     },
     select (record, action) {
+      if (action === 'view_topic') {
+        this.project = record
+        this.viewTopic = true
+      }
+
       if (action === 'add_topic') {
         this.topicDialog = true
         this.topic = {
@@ -377,6 +458,7 @@ export default {
     ...mapState(useMainStore, ['teams']),
     ...mapState(useMainStore, ['projects']),
     ...mapState(useMainStore, ['getSupervisors']),
+    ...mapState(useMainStore, ['getDocument']),
     projectCount () {
       if (this.projects) {
         return this.projects.length

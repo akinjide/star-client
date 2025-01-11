@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row class="mt-4">
+    <v-row>
       <v-col cols="4"></v-col>
 
       <v-col cols="4">
@@ -30,6 +30,7 @@
               <th class="text-left text-uppercase">Supervisor</th>
               <th class="text-left text-uppercase">Availability</th>
               <th class="text-left text-uppercase">Team</th>
+              <th class="text-left text-uppercase">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -45,16 +46,44 @@
                 </v-chip>
               </td>
               <td>{{ project.team_name }}</td>
+              <td>
+                <div class="d-flex">
+                  <IconButton
+                    tooltipText="View Topic"
+                    color="blue-grey"
+                    icon="mdi-file-eye-outline"
+                    @action="select(project, 'view_topic')"
+                  ></IconButton>
+                </div>
+              </td>
             </tr>
           </tbody>
         </v-table>
       </v-col>
     </v-row>
   </v-container>
+
+  <!-- DIALOG -->
+  <PreviewDialog
+    :view="viewTopic"
+    :header="{
+      icon: 'mdi-information',
+      title: 'Topic Information'
+    }"
+    :body="{
+      name: project.topic_name,
+      text: project.topic_description,
+      url: getDocument(project.topic_url)
+    }"
+    @close="viewTopic = false"
+  />
 </template>
 
 <script>
 import { mapState, mapActions } from 'pinia'
+
+import IconButton from '@/components/IconButton'
+import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
 
 export default {
@@ -66,13 +95,23 @@ export default {
       topic: {},
       project: {},
       progress: false,
-      searchQuery: null
+      searchQuery: null,
+      viewTopic: false
     }
   },
-  components: {},
+  components: {
+    IconButton,
+    PreviewDialog
+  },
   methods: {
     ...mapActions(useMainStore, ['getTopics']),
     ...mapActions(useMainStore, ['getProjects']),
+    async select (project, action) {
+      if (action === 'view_topic') {
+        this.project = project
+        this.viewTopic = true
+      }
+    },
     projectStatus (project) {
       if (project.team_id) {
         return 'unavailable'
@@ -89,6 +128,7 @@ export default {
     ...mapState(useUserStore, ['user']),
     ...mapState(useMainStore, ['projects']),
     ...mapState(useMainStore, ['getSupervisors']),
+    ...mapState(useMainStore, ['getDocument']),
     projectCount () {
       if (this.projects) {
         return this.projects.length

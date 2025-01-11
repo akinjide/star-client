@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row class="my-4">
+    <v-row>
       <v-col cols="12">
         <v-stepper
           v-model="step"
@@ -37,6 +37,7 @@
                         inline
                         class="justify-end d-flex"
                         min-width="450"
+                        :error="missingRequired"
                       >
                         <v-radio
                           v-for="(rs, index) in rubric.rubrics_score" :key="index"
@@ -84,6 +85,8 @@
                         v-model="rubric.selected_score"
                         inline
                         class="justify-end d-flex"
+                        min-width="450"
+                        :error="missingRequired"
                       >
                         <v-radio
                           v-for="(rs, index) in rubric.rubrics_score" :key="index"
@@ -131,6 +134,8 @@
                         v-model="rubric.selected_score"
                         inline
                         class="justify-end d-flex"
+                        min-width="450"
+                        :error="missingRequired"
                       >
                         <v-radio
                           v-for="(rs, index) in rubric.rubrics_score" :key="index"
@@ -178,6 +183,8 @@
                         v-model="rubric.selected_score"
                         inline
                         class="justify-end d-flex"
+                        min-width="450"
+                        :error="missingRequired"
                       >
                         <v-radio
                           v-for="(rs, index) in rubric.rubrics_score" :key="index"
@@ -301,7 +308,8 @@ export default {
         'Quality and contribution of the project',
         'Presentation',
         'Submit'
-      ]
+      ],
+      missingRequired: false
     }
   },
   components: {},
@@ -333,15 +341,19 @@ export default {
 
       return total
     },
+    checkedRubricsScore (rubrics) {
+      return rubrics.every(this.hasSelectedRubricScore)
+    },
+    hasSelectedRubricScore (rubric) {
+      if (rubric && rubric.selected_score) {
+        return true
+      }
+
+      return false
+    },
     async submit () {
       const evaluatedRubrics = this.rubrics
-        .filter((rubric) => {
-          if (rubric && rubric.selected_score) {
-            return true
-          }
-
-          return false
-        })
+        .filter(this.hasSelectedRubricScore)
         .map((rubric) => {
           return {
             name: rubric.criterion,
@@ -370,6 +382,17 @@ export default {
         return this.submit()
       }
 
+      if (this.step <= 5) {
+        const rubrics = this.getRubricsSection(this.sections[this.step - 1])
+
+        if (!this.checkedRubricsScore(rubrics)) {
+          this.missingRequired = true
+          console.log('failed')
+          return
+        }
+      }
+
+      this.missingRequired = false
       this.step = this.step + 1
     }
   },

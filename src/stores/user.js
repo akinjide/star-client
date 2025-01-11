@@ -14,9 +14,13 @@ export const useUserStore = defineStore('user', {
     }
   },
   actions: {
+    reset () {
+      this.id = ''
+      this.data = {}
+    },
     async getUser (userId) {
       try {
-        const response = await api.user.get(userId)
+        const response = await api.users.get(userId)
         const result = api.unwrap(response)
         const { data } = result
 
@@ -25,13 +29,9 @@ export const useUserStore = defineStore('user', {
         }
 
         return result
-      } catch (error) {
-        console.log(api.handleError(error))
+      } catch (err) {
+        return api.handleError(err)
       }
-    },
-    reset () {
-      this.id = ''
-      this.data = {}
     }
   }
 })

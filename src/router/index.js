@@ -15,7 +15,7 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import('../views/common/DashboardView.vue'),
+    component: () => import('../views/common/MainView.vue'),
     meta: {
       title: 'Star - Dashboard',
       requiresAuth: true
@@ -117,6 +117,16 @@ const routes = [
         }
       },
       {
+        path: 'moderate/reports',
+        name: 'moderate_reports',
+        component: () => import('../views/supervisor/ReportView.vue'),
+        meta: {
+          title: 'Star - Reports',
+          requiresAuth: true,
+          requireAdmin: false
+        }
+      },
+      {
         path: 'moderate/tasks',
         name: 'moderate_tasks',
         component: () => import('../views/supervisor/TaskView.vue'),
@@ -159,11 +169,11 @@ const routes = [
         }
       },
       {
-        path: 'manage/documentation',
-        name: 'documentation',
-        component: () => import('../views/administrator/DocumentationView.vue'),
+        path: 'manage/reports',
+        name: 'report_management',
+        component: () => import('../views/administrator/ReportView.vue'),
         meta: {
-          title: 'Star - Manage Documentation',
+          title: 'Star - Manage Reports',
           requiresAuth: true,
           requireAdmin: true
         }

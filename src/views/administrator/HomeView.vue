@@ -12,7 +12,7 @@
     <v-row class="d-flex justify-center">
       <v-col class="v-col-md-4 v-col-xs-12 v-col-sm-6">
         <v-card class="content-card">
-          <v-row dense justify="center">
+          <v-row dense justify="center" class="flex-column">
             <v-btn variant="tonal" color="#6975EB" rounded="xl" class="mb-4">
               <router-link :to="{ name: 'user_management' }">
                 User Management
@@ -24,7 +24,7 @@
               </router-link>
             </v-btn>
             <v-btn variant="tonal" color="#6975EB" rounded="xl" class="mb-4">
-              <router-link :to="{ name: 'documentation' }">
+              <router-link :to="{ name: 'report_management' }">
                 Documentation
               </router-link>
             </v-btn>
@@ -33,10 +33,13 @@
                 Project Management
               </router-link>
             </v-btn>
-            <v-btn variant="tonal" color="#6975EB" rounded="xl">
+            <v-btn variant="tonal" color="#6975EB" rounded="xl" class="mb-4">
               <router-link :to="{ name: 'evaluations_management' }">
                 Evaluations
               </router-link>
+            </v-btn>
+            <v-btn variant="tonal" color="red" rounded="xl" @click="logout(user, this.$router)">
+              Logout
             </v-btn>
           </v-row>
         </v-card>
@@ -44,6 +47,26 @@
     </v-row>
   </v-container>
 </template>
+
+<script>
+import { mapState, mapActions } from 'pinia'
+
+import { useAuthStore, useUserStore } from '@/stores'
+
+export default {
+  name: 'Home',
+  components: {},
+  data () {
+    return {}
+  },
+  methods: {
+    ...mapActions(useAuthStore, ['logout'])
+  },
+  computed: {
+    ...mapState(useUserStore, ['user'])
+  }
+}
+</script>
 
 <style scoped>
 .logo {

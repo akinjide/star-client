@@ -1,10 +1,11 @@
 import axios from 'axios'
 
 import api from '@/api'
+import { SERVER_ADDRESS } from '@/stores/constants'
 import { useAuthStore } from '@/stores/auth'
 
 const request = axios.create({
-  baseURL: 'http://localhost:3000'
+  baseURL: SERVER_ADDRESS
 })
 
 /**

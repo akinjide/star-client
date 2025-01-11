@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer app permanent Left class="left-sidebar py-1 px-5 d-print-none">
+  <v-navigation-drawer v-if="drawer" app permanent Left class="left-sidebar py-1 px-5 d-print-none">
     <v-list>
       <div>
         <v-list-subheader class="text-uppercase dashboard-title">Dashboard</v-list-subheader>
@@ -30,6 +30,10 @@ export default {
     },
     route_data: {
       type: Object,
+      required: false
+    },
+    drawer: {
+      type: Boolean,
       required: true
     }
   },
@@ -37,12 +41,13 @@ export default {
     return {
       menu: [
         // All
-        { title: 'Home', icon: 'mdi-home', name: 'home', allow: [2, 3, 4] },
-        { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'moderate_projects', allow: [2] },
-        { title: 'Project', icon: 'mdi-lightbulb-outline', name: 'projects', allow: [4] },
+        { title: 'Home', icon: 'mdi-home', name: 'home', allow: [2, 4] },
+        { title: 'Project', icon: 'mdi-file-document-multiple-outline', name: 'moderate_projects', allow: [2] },
+        { title: 'Project', icon: 'mdi-file-document-multiple-outline', name: 'projects', allow: [4] },
         { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'tasks', allow: [4] },
         { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'moderate_tasks', allow: [2] },
-        { title: 'Reports', icon: 'mdi-file-document-outline', name: 'reports', allow: [2, 4] },
+        { title: 'Reports', icon: 'mdi-file-import-outline', name: 'reports', allow: [4], route_resolver: (p) => {} },
+        { title: 'Reports', icon: 'mdi-file-import-outline', name: 'moderate_reports', allow: [2] },
         { title: 'Community', icon: 'mdi-forum-outline', name: 'community', allow: [4] },
         { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'evaluations', allow: [2, 3] },
         { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'team_evaluation', allow: [4], route_resolver: (p) => { return p.id } },
@@ -51,15 +56,15 @@ export default {
         { title: 'Home', icon: 'mdi-home', name: 'home_management', allow: [1] },
         { title: 'Users', icon: 'mdi-account-multiple-outline', name: 'user_management', allow: [1] },
         { title: 'Team', icon: 'mdi-account-group-outline', name: 'team_management', allow: [1] },
-        { title: 'Project', icon: 'mdi-note-multiple-outline', name: 'project_management', allow: [1] },
-        { title: 'Documentation', icon: 'mdi-file-document-multiple-outline', name: 'documentation', allow: [1] },
+        { title: 'Project', icon: 'mdi-file-document-multiple-outline', name: 'project_management', allow: [1] },
+        { title: 'Reports', icon: 'mdi-file-import-outline', name: 'report_management', allow: [1] },
         { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'evaluations_management', allow: [1] }
       ]
     }
   },
   methods: {
     getRoute (menu) {
-      if (menu.route_resolver) {
+      if (menu.route_resolver && this.route_data) {
         const id = menu.route_resolver(this.route_data)
 
         if (id) {
@@ -81,7 +86,7 @@ export default {
       const filterFn = (roleId) => {
         return (m) => {
           if (m.allow.includes(roleId)) {
-            if (m.route_resolver && !this.route_data.id) {
+            if (m.route_resolver && !(this.route_data && this.route_data.id)) {
               return false
             }
 

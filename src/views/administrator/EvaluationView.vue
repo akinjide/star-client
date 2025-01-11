@@ -1,7 +1,16 @@
 <template>
   <v-container fluid>
-    <v-row class="mt-4">
-      <v-col cols="4"></v-col>
+    <v-row>
+      <v-col cols="4">
+        <v-select
+          prepend-inner-icon="mdi-filter-outline"
+          density="compact"
+          v-model="filterQuery"
+          :items="filters"
+          label="Filter By"
+          max-width="200"
+        ></v-select>
+      </v-col>
 
       <v-col cols="4">
         <v-text-field
@@ -28,13 +37,30 @@
           v-for="(team, index) in resultQuery"
           :key="index"
           :title="team.name"
-          :subtitle="getTeamSupervisor(team)"
+          :subtitle="team.description"
           elevation="4"
           class="pa-4 mb-6">
-          <div class="pl-4">
-            <v-btn class="mr-2" size="x-small" color="blue" variant="tonal" @click="goToPage(team)">
-              View Evaluation
-            </v-btn>
+          <div class="pl-4 d-flex align-center justify-space-between">
+            <div>
+              <p class="text-body-2">Supervised by <strong>{{ getTeamSupervisor(team) }}</strong>
+              </p>
+            </div>
+
+            <div>
+              <IconButton
+                tooltipText="View Evaluation"
+                color="blue-grey"
+                icon="mdi-eye-outline"
+                @action="goToPage(team)"
+              ></IconButton>
+
+              <IconButton
+                tooltipText="View Topic"
+                color="blue-grey"
+                icon="mdi-file-eye-outline"
+                @action="select(team, 'view_topic')"
+              ></IconButton>
+            </div>
           </div>
 
           <v-table
@@ -86,23 +112,60 @@
       </v-col>
     </v-row>
   </v-container>
+
+  <!-- DIALOG -->
+  <PreviewDialog
+    :view="viewTopic"
+    :header="{
+      icon: 'mdi-information',
+      title: 'Topic Information'
+    }"
+    :body="{
+      name: project.topic_name,
+      text: project.topic_description,
+      url: getDocument(project.topic_url)
+    }"
+    @close="viewTopic = false"
+  />
 </template>
 
 <script>
 import { mapState, mapActions } from 'pinia'
+
+import IconButton from '@/components/IconButton'
+import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
 
 export default {
   name: 'Evaluations',
   data () {
     return {
-      searchQuery: null
+      searchQuery: null,
+      viewTopic: false,
+      filterQuery: 'All',
+      filters: [
+        'All',
+        'Evaluated',
+        'Unevaluated'
+      ]
     }
   },
-  components: {},
+  components: {
+    IconButton,
+    PreviewDialog
+  },
   methods: {
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['getTeams']),
+    ...mapActions(useMainStore, ['getEvaluations']),
+    ...mapActions(useMainStore, ['getProjects']),
+    ...mapActions(useMainStore, ['getProjectByTeam']),
+    async select (team, action) {
+      if (action === 'view_topic') {
+        await this.getProjectByTeam(team.id)
+        this.viewTopic = true
+      }
+    },
     goToPage (team) {
       this.$router.push({
         name: 'team_evaluation_management',
@@ -110,7 +173,6 @@ export default {
       })
     },
     hasMembers (team) {
-      console.log(team)
       return team.members && team.members.length > 0 && team.members[0]
     },
     getTeamSupervisor (team) {
@@ -119,18 +181,34 @@ export default {
       }
 
       return 'No supervisor assigned yet'
+    },
+    hasEvaluation (team) {
+      if (this.evaluations && this.evaluations.length) {
+        for (const evaluation of this.evaluations) {
+          if (team.id === evaluation.team_id && evaluation.evaluations) {
+            return true
+          }
+        }
+      }
+
+      return false
     }
   },
   async created () {
     await this.getUsers()
+    await this.getProjects()
     await this.getTeams()
+    await this.getEvaluations()
   },
   computed: {
     ...mapState(useUserStore, ['user']),
     ...mapState(useMainStore, ['teams']),
+    ...mapState(useMainStore, ['project']),
     ...mapState(useMainStore, ['getStudents']),
     ...mapState(useMainStore, ['getSupervisors']),
     ...mapState(useMainStore, ['getImage']),
+    ...mapState(useMainStore, ['getDocument']),
+    ...mapState(useMainStore, ['evaluations']),
     teamsCount () {
       if (this.teams) {
         return this.teams.length
@@ -140,18 +218,34 @@ export default {
     },
     resultQuery () {
       if (this.searchQuery) {
-        return this.teams.filter((item) => {
+        return this.teams.filter((team) => {
           return this.searchQuery.toLowerCase().split(' ').every((v) => {
-            if (item.name.toLowerCase().includes(v)) {
+            if (team.name.toLowerCase().includes(v)) {
               return true
             }
 
-            if (item.supervisor_full_name.toLowerCase().includes(v)) {
+            if (team.supervisor_full_name.toLowerCase().includes(v)) {
               return true
             }
 
             return false
           })
+        })
+      } else if (this.filterQuery) {
+        if (this.filterQuery === this.filters[0]) {
+          return this.teams
+        }
+
+        return this.teams.filter((team) => {
+          if (this.filterQuery === this.filters[1] && this.hasEvaluation(team)) {
+            return true
+          }
+
+          if (this.filterQuery === this.filters[2] && !this.hasEvaluation(team)) {
+            return true
+          }
+
+          return false
         })
       } else {
         return this.teams

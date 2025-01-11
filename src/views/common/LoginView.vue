@@ -2,12 +2,8 @@
   <v-app>
     <v-container fluid class="login-page">
       <v-row no-gutters class="my-auto">
-        <!-- Left Side with Illustration -->
-        <v-col cols="12" md="6">
-          <!-- <img src="src\assets\illustration1.svg" alt="Illustration" class="illustration-img" /> -->
-        </v-col>
+        <v-col cols="12" md="6"></v-col>
 
-        <!-- Right Side with Form -->
         <v-col cols="12" md="6" class="form-col">
           <div class="login-card">
             <div class="d-flex justify-center logo">
@@ -25,7 +21,7 @@
             > {{ errorMessage }}
             </v-alert>
 
-            <v-form @submit.prevent="login" class="login-form">
+            <v-form v-model="loginForm" @submit.prevent="login" class="login-form">
               <v-text-field
                 v-model="email"
                 label="Email"
@@ -34,26 +30,23 @@
                 outlined
                 dense
                 required
+                :rules="[rules.required]"
               />
               <v-text-field
-                v-model="password"
+                v-model="password.value"
+                :append-inner-icon="password.icon"
                 label="Password"
-                type="password"
+                :type="password.type"
+                @click:appendInner="togglePassword"
                 outlined
                 dense
                 required
+                :rules="[rules.required]"
               />
-<!--               <v-row class="forgot-password">
-                <a href="#">Forgot your password?</a>
-              </v-row> -->
-              <v-btn color="primary" block class="login-btn" @click="login">
+
+              <v-btn :disabled="!loginForm" type="submit" color="primary" block class="login-btn">
                 Log in →
               </v-btn>
-<!--               <v-row class="signup-link">
-                <p>
-                  You do not have an account? <a href="#">Create an account</a>
-                </p>
-              </v-row> -->
             </v-form>
           </div>
         </v-col>
@@ -69,10 +62,18 @@ import { useAuthStore, useUserStore } from '@/stores'
 export default {
   data () {
     return {
+      loginForm: false,
       hasError: false,
       errorMessage: 'Error Occurred. Please try again',
+      password: {
+        icon: 'mdi-eye-outline',
+        type: 'password',
+        value: ''
+      },
       email: '',
-      password: ''
+      rules: {
+        required: value => !!value || 'Field is required'
+      }
     }
   },
   methods: {
@@ -81,7 +82,7 @@ export default {
     async login () {
       this.hasError = false
 
-      const { errorMessage, data } = await this.authenticate(this.email, this.password)
+      const { errorMessage, data } = await this.authenticate(this.email, this.password.value)
 
       if (errorMessage) {
         this.hasError = true
@@ -91,11 +92,24 @@ export default {
 
       await this.getUser(data.id)
 
-      if (data.role_id === 1) {
-        return this.$router.push('/home')
+      switch (data.role_id) {
+        case 1:
+          return this.$router.push('/home')
+        case 3:
+          return this.$router.push('/dashboard/evaluations')
+        default:
+          return this.$router.push('/dashboard')
+      }
+    },
+    togglePassword (e) {
+      if (this.password.type === 'text') {
+        this.password.type = 'password'
+        this.password.icon = 'mdi-eye-outline'
+        return
       }
 
-      return this.$router.push('/dashboard')
+      this.password.type = 'text'
+      this.password.icon = 'mdi-eye-off-outline'
     }
   }
 }
@@ -142,12 +156,6 @@ export default {
 
 .login-form {
   width: 100%;
-}
-
-.forgot-password,
-.signup-link {
-  text-align: center;
-  margin: 10px 0;
 }
 
 .login-btn {

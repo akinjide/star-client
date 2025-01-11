@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row class="mt-4">
+    <v-row>
       <v-col cols="4">
         <h4>Manage Users</h4>
       </v-col>
@@ -18,10 +18,16 @@
       </v-col>
 
       <v-col cols="4">
-        <div class="d-flex justify-end">
+        <div class="d-flex justify-end align-center">
           <h4 class="mx-4">{{ usersCount }} User(s)</h4>
-          <v-btn color="blue" size="small" variant="tonal" @click="select({}, 'create_user')">Add User
-          </v-btn>
+
+          <IconButton
+            tooltipText="Add User"
+            color="blue"
+            size="small"
+            icon="mdi-account-edit-outline"
+            @action="select({}, 'create_user')"
+          ></IconButton>
         </div>
       </v-col>
     </v-row>
@@ -54,12 +60,21 @@
               <td>{{ getRoleName(user.role_id) }}</td>
               <td>{{ user.department }}</td>
               <td>
-                <v-btn class="mr-2" size="x-small" color="blue" variant="tonal" @click="select(user, 'edit_user')">
-                  Edit
-                </v-btn>
-                <v-btn size="x-small" color="red" variant="tonal" @click="remove(user)">
-                  Delete
-                </v-btn>
+                <div class="d-flex">
+                  <IconButton
+                    tooltipText="Edit User"
+                    color="green"
+                    icon="mdi-account-edit-outline"
+                    @action="select(user, 'edit_user')"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="Remove User"
+                    color="red"
+                    icon="mdi-account-minus-outline"
+                    @action="select(user, 'delete_user')"
+                  ></IconButton>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -71,12 +86,12 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="dialog"
+      v-model="dialog.value"
       max-width="600"
     >
       <v-card
         prepend-icon="mdi-account"
-        title="User Profile"
+        :title="dialog.title"
       >
         <v-card-text>
           <v-row dense>
@@ -141,8 +156,10 @@
 
             <v-col cols="12" md="6" sm="6">
               <v-text-field
-                label="Password"
-                type="password"
+                :label="dialog.password.label"
+                :append-inner-icon="dialog.password.icon"
+                :type="dialog.password.type"
+                @click:appendInner="togglePassword('password')"
                 v-model="selectedUser.password"
                 required
               ></v-text-field>
@@ -151,8 +168,10 @@
             <v-col cols="12" md="6" sm="6">
               <v-text-field
                 hint="Password should match"
-                label="Confirm Password"
-                type="password"
+                :label="dialog.nPassword.label"
+                :append-inner-icon="dialog.nPassword.icon"
+                :type="dialog.nPassword.type"
+                @click:appendInner="togglePassword('nPassword')"
                 v-model="selectedUser.confirm_password"
                 required
                 persistent-hint
@@ -171,7 +190,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="dialog = false"
+            @click="dialog.value = false"
           ></v-btn>
 
           <v-btn
@@ -184,10 +203,23 @@
       </v-card>
     </v-dialog>
   </div>
+
+  <DeleteDialog
+    :view="confirmDeletion"
+    :body="{
+      name: selectedUser.full_name,
+      text: 'Are you sure you want to proceed?'
+    }"
+    @close="confirmDeletion = false"
+    @confirm="remove"
+  />
 </template>
 
 <script>
 import { mapState, mapActions } from 'pinia'
+
+import DeleteDialog from '@/components/DeleteDialog'
+import IconButton from '@/components/IconButton'
 import { useUserStore, useMainStore } from '@/stores'
 import api from '@/api'
 
@@ -195,20 +227,54 @@ export default {
   name: 'User Management',
   data () {
     return {
-      dialog: false,
+      confirmDeletion: false,
+      dialog: {
+        value: false,
+        title: 'Add User',
+        password: {
+          label: 'Password',
+          icon: 'mdi-eye-outline',
+          type: 'password'
+        },
+        nPassword: {
+          label: 'Confirm password',
+          icon: 'mdi-eye-outline',
+          type: 'password'
+        }
+      },
       searchQuery: null,
-      selectedUser: null,
+      selectedUser: {},
       progress: false
     }
   },
-  components: {},
+  components: {
+    IconButton,
+    DeleteDialog
+  },
   methods: {
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['createUser']),
     ...mapActions(useMainStore, ['updateUser']),
     ...mapActions(useMainStore, ['deleteUser']),
     select (user, action) {
-      this.dialog = true
+      if (action === 'create_user') {
+        this.dialog.title = 'Add User'
+        this.dialog.password.label = 'Password'
+        this.dialog.nPassword.label = 'Confirm password'
+        this.dialog.value = true
+      }
+
+      if (action === 'edit_user') {
+        this.dialog.title = 'Edit User'
+        this.dialog.password.label = 'Change password'
+        this.dialog.nPassword.label = 'Confirm new password'
+        this.dialog.value = true
+      }
+
+      if (action === 'delete_user') {
+        this.confirmDeletion = true
+      }
+
       this.selectedUser = {
         ...user,
         action: action
@@ -218,7 +284,6 @@ export default {
       if (user.file) {
         const response = await api.upload.create(user.file, 'images', event => {
           this.progress = true
-          console.log(Math.round((100 * event.loaded) / event.total))
         })
 
         this.progress = false
@@ -238,16 +303,42 @@ export default {
 
       if (user.action === 'edit_user') {
         const response = await this.updateUser(user.id, user)
+
         if (response) {
           this.dialog = false
           this.$router.go(this.$router.currentRoute)
         }
       }
     },
-    async remove (user) {
-      const response = await this.deleteUser(user.id)
-      console.log(response)
-      this.$router.go(this.$router.currentRoute)
+    async remove (confirm) {
+      if (confirm) {
+        const response = await this.deleteUser(this.selectedUser.id)
+        console.log(response)
+        this.$router.go(this.$router.currentRoute)
+      }
+    },
+    togglePassword (action) {
+      if (action === 'password') {
+        if (this.dialog.password.type === 'text') {
+          this.dialog.password.type = 'password'
+          this.dialog.password.icon = 'mdi-eye-outline'
+          return
+        }
+
+        this.dialog.password.type = 'text'
+        this.dialog.password.icon = 'mdi-eye-off-outline'
+      }
+
+      if (action === 'nPassword') {
+        if (this.dialog.nPassword.type === 'text') {
+          this.dialog.nPassword.type = 'password'
+          this.dialog.nPassword.icon = 'mdi-eye-outline'
+          return
+        }
+
+        this.dialog.nPassword.type = 'text'
+        this.dialog.nPassword.icon = 'mdi-eye-off-outline'
+      }
     }
   },
   async created () {

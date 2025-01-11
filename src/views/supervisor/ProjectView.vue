@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row class="mt-4">
+    <v-row>
       <v-col cols="4"></v-col>
 
       <v-col cols="4">
@@ -16,11 +16,17 @@
       </v-col>
 
       <v-col cols="4">
-        <div class="d-flex justify-end">
+        <div class="d-flex justify-end align-center">
           <h4 class="mx-4">{{ projectCount }} Project(s)</h4>
-          <v-btn class="ml-2" color="blue" size="small" variant="tonal" @click="select({}, 'add_topic')">
-            Add Topic
-          </v-btn>
+
+          <IconButton
+            v-if="!hasProject()"
+            tooltipText="Add Topic"
+            color="blue"
+            size="small"
+            icon="mdi-file-plus-outline"
+            @action="select({}, 'add_topic')"
+          ></IconButton>
         </div>
       </v-col>
     </v-row>
@@ -54,12 +60,29 @@
               </td>
               <td>{{ project.team_name }}</td>
               <td>
-                <v-btn class="mr-2" color="green" size="x-small" variant="tonal" @click="select(project, 'assign_project')" v-if="projectStatus(project) === 'available' && ownProject(project)">
-                  Assign
-                </v-btn>
-                <v-btn size="x-small" color="blue" variant="tonal" v-if="ownProject(project)">
-                  Edit
-                </v-btn>
+                <div class="d-flex">
+                  <IconButton
+                    tooltipText="Assign Topic"
+                    color="orange"
+                    icon="mdi-account-multiple-plus-outline"
+                    @click="select(project, 'assign_project')"
+                    v-if="projectStatus(project) === 'available' && ownProject(project)"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="Edit Topic and Project"
+                    color="green"
+                    icon="mdi-file-document-edit-outline"
+                    v-if="ownProject(project)"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="View Topic"
+                    color="blue-grey"
+                    icon="mdi-file-eye-outline"
+                    @action="select(project, 'view_topic')"
+                  ></IconButton>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -94,17 +117,6 @@
                 v-model="topic.description"
                 required
               ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" md="12" sm="12">
-              <v-select
-                :items="getSupervisors"
-                item-title="full_name"
-                item-value="id"
-                label="Supervisor*"
-                v-model="topic.supervisor_id"
-                required
-              ></v-select>
             </v-col>
 
             <v-col cols="12" md="12" sm="12">
@@ -207,17 +219,30 @@
       </v-card>
     </v-dialog>
   </div>
+
+  <!-- DIALOG -->
+  <PreviewDialog
+    :view="viewTopic"
+    :header="{
+      icon: 'mdi-information',
+      title: 'Topic Information'
+    }"
+    :body="{
+      name: project.topic_name,
+      text: project.topic_description,
+      url: getDocument(project.topic_url)
+    }"
+    @close="viewTopic = false"
+  />
 </template>
 
 <script>
 import { mapState, mapActions } from 'pinia'
+
+import IconButton from '@/components/IconButton'
+import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
 import api from '@/api'
-
-// TOOD
-// 1. change project group, supervisor, title and topic
-// 2. grading submitted reports from team
-// 3. changing jury member assigned to group
 
 export default {
   name: 'Project Moderation',
@@ -225,13 +250,17 @@ export default {
     return {
       topicDialog: false,
       projectDialog: false,
+      viewTopic: false,
       topic: {},
       project: {},
       progress: false,
       searchQuery: null
     }
   },
-  components: {},
+  components: {
+    IconButton,
+    PreviewDialog
+  },
   methods: {
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['getTeams']),
@@ -247,11 +276,30 @@ export default {
     ownProject (project) {
       return project.supervisor_id === this.user.id
     },
+    hasProject () {
+      if (this.projects && this.projects.length) {
+        return this.projects.some((project) => {
+          if (project.supervisor_id && project.supervisor_id === this.user.id) {
+            return true
+          }
+
+          return false
+        })
+      }
+
+      return false
+    },
     select (record, action) {
+      if (action === 'view_topic') {
+        this.project = record
+        this.viewTopic = true
+      }
+
       if (action === 'add_topic') {
         this.topicDialog = true
         this.topic = {
           ...record,
+          supervisor_id: this.user.id,
           action: action
         }
       }
@@ -310,7 +358,7 @@ export default {
     ...mapState(useUserStore, ['user']),
     ...mapState(useMainStore, ['teams']),
     ...mapState(useMainStore, ['projects']),
-    ...mapState(useMainStore, ['getSupervisors']),
+    ...mapState(useMainStore, ['getDocument']),
     projectCount () {
       if (this.projects) {
         return this.projects.length

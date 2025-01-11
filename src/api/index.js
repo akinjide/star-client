@@ -1,6 +1,5 @@
-import request from './request'
-
-import auth from './auth'
+import request from '@/api/request'
+import auth from '@/api/auth'
 
 const unwrap = (response) => {
   if (response && response.data) {
@@ -20,7 +19,6 @@ const unwrap = (response) => {
 }
 
 const handleError = (error) => {
-  console.log(error)
   let message = null
 
   if (error && error.data) {
@@ -44,7 +42,7 @@ export default {
   unwrap,
   handleError,
   auth,
-  user: {
+  users: {
     get: async (userId) => {
       return request.get(`users/${userId}`)
     },
@@ -142,29 +140,29 @@ export default {
       })
     }
   },
-  task: {
+  tasks: {
     get: async (userId) => {
       return request.get(`tasks/${userId}`)
     },
     create: async (task) => {
-      console.log(task)
       return request.post('/tasks', task)
     },
     all: async () => {
       return request.get('/tasks')
+    },
+    complete: async (taskId) => {
+      return request.put(`tasks/${taskId}/complete`)
+    },
+    update: async (taskId, task) => {
+      return request.put(`tasks/${taskId}`, task)
     }
   },
   evaluations: {
     get: async (projectId) => {
       return request.get(`evaluations/projects/${projectId}/download`)
     },
-    create: async (evaluation, originality, evaluatorId, projectId) => {
-      return request.post('/evaluations', {
-        project_id: projectId,
-        evaluator_id: evaluatorId,
-        originality: originality,
-        evaluation
-      })
+    create: async (evaluation) => {
+      return request.post('/evaluations', evaluation)
     },
     all: async () => {
       return request.get('/evaluations')
@@ -173,6 +171,23 @@ export default {
   rubrics: {
     all: async () => {
       return request.get('/rubrics')
+    }
+  },
+  reports: {
+    create: async (report) => {
+      return request.post('/reports', report)
+    },
+    all: async () => {
+      return request.get('/reports')
+    },
+    get: async (projectId) => {
+      return request.get(`reports/projects/${projectId}`)
+    },
+    remove: async (reportId) => {
+      return request.delete(`reports/${reportId}`)
+    },
+    update: async (reportId, report) => {
+      return request.put(`reports/${reportId}`, report)
     }
   }
 }

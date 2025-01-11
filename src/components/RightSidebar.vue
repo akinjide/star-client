@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer permanent location="right" width="300" class="py-1 d-print-none">
+  <v-navigation-drawer v-if="drawer" permanent location="right" width="300" class="py-1 d-print-none">
     <v-row align="center">
       <v-col cols="9">
         <v-list-item
@@ -37,8 +37,9 @@
               <v-list-item-title>{{ task.task_name }}</v-list-item-title>
 
               <v-list-item-subtitle>
-                <v-icon class="mr-1" color="warning" icon="mdi-clock"></v-icon>
-                {{ parseDateTime(task.task_ends_at) }}
+                <v-icon v-if="new Date(task.task_ends_at) >= new Date()" class="mr-1" color="warning" icon="mdi-clock-outline"></v-icon>
+                <v-icon  v-if="new Date(task.task_ends_at) <= new Date()" class="mr-1" color="red" icon="mdi-clock-alert-outline"></v-icon>
+                {{ $parseDateTime(task.task_ends_at) }}
               </v-list-item-subtitle>
             </v-list-item>
           </v-list>
@@ -51,7 +52,6 @@
 <script>
 import { mapState, mapActions } from 'pinia'
 
-import { useDateFormat } from '@vueuse/core'
 import { useAuthStore, useMainStore } from '@/stores'
 
 export default {
@@ -60,63 +60,57 @@ export default {
   props: {
     tasks: {
       type: Array,
-      required: true
+      required: false
     },
     user: {
       type: Object,
       required: true
     },
-    getRoleName: {
-      type: Function,
+    drawer: {
+      type: Boolean,
       required: true
     }
   },
   data () {
     return {
-      attributes: [
-        {
-          highlight: {
-            color: 'blue',
-            fillMode: 'outline'
-          },
-          key: 'today',
-          popover: {
-            visibility: 'click',
-            label: 'Another beautiful day!'
-          },
-          dates: [new Date()]
-        }
-      ]
+      attributes: []
     }
   },
   methods: {
     ...mapActions(useAuthStore, ['logout']),
-    parseDateTime (t) {
-      return useDateFormat(t, 'ddd, YYYY-MM-DD HH:mm')
-    },
     populateCalendar () {
+      this.attributes = [{
+        highlight: {
+          color: 'blue',
+          fillMode: 'outline'
+        },
+        key: 'today',
+        popover: {
+          label: 'Another beautiful day!'
+        },
+        dates: [new Date()]
+      }]
+
       if (this.tasks && this.tasks.length) {
         for (const task of this.tasks) {
           if (task.task_submitted_at) {
             this.attributes.push({
               highlight: 'green',
-              dates: [task.task_submitted_at],
+              dates: [task.task_assigned_at],
               popover: {
-                visibility: 'click',
-                label: task.task_name
+                label: `${task.task_name} submitted!`
               }
             })
 
             continue
           }
 
-          if (task.task_assigned_at === task.task_ends_at) {
+          if (new Date(task.task_ends_at) <= new Date()) {
             this.attributes.push({
               highlight: 'red',
-              dates: [[task.task_assigned_at, task.task_ends_at]],
+              dates: [task.task_ends_at],
               popover: {
-                visibility: 'click',
-                label: task.task_name
+                label: `${task.task_name} exceeded deadline!`
               }
             })
 
@@ -124,11 +118,10 @@ export default {
           }
 
           this.attributes.push({
-            highlight: 'blue',
+            highlight: 'orange',
             dates: [[task.task_assigned_at, task.task_ends_at]],
             popover: {
-              visibility: 'click',
-              label: task.task_name
+              label: `${task.task_name} ends soon!`
             }
           })
         }
@@ -140,6 +133,7 @@ export default {
   computed: {
     ...mapState(useAuthStore, ['isStudent']),
     ...mapState(useMainStore, ['getImage']),
+    ...mapState(useMainStore, ['getRoleName']),
     pendingTasks () {
       if (this.tasks && this.tasks.length) {
         return this.tasks.filter((task) => {

@@ -1,9 +1,6 @@
 <template>
   <v-container fluid>
-    <v-row
-      class="flex-nowrap flex-column justify-space-between"
-      no-gutters
-    >
+    <v-row class="flex-nowrap flex-column justify-space-between" no-gutters>
       <v-col cols="12" style="min-height: 620px; max-height: 620px; overflow-y: scroll;">
         <v-list lines="two">
           <v-list-item
@@ -20,7 +17,7 @@
                 </v-list-item-title>
 
                 <v-list-item-subtitle class="px-2 text-caption">
-                  {{ timeAgo(message.subtitle.created_at) }}
+                  {{ $timeAgo(message.subtitle.created_at) }}
                 </v-list-item-subtitle>
               </div>
 
@@ -56,7 +53,6 @@
 <script>
 import { mapState, mapActions } from 'pinia'
 import { useUserStore, useMainStore } from '@/stores'
-import { useTimeAgo } from '@vueuse/core'
 
 export default {
   name: 'Community',
@@ -69,16 +65,10 @@ export default {
   methods: {
     ...mapActions(useMainStore, ['getMessages']),
     ...mapActions(useMainStore, ['createMessage']),
-    timeAgo (t) {
-      return useTimeAgo(t)
-    },
-    parseSubtitle () {
-
-    },
     async create (message) {
-      const response = await this.createMessage(message)
+      const { errorMessage } = await this.createMessage(message)
 
-      if (response) {
+      if (!errorMessage) {
         this.dialog = false
         this.$router.go(this.$router.currentRoute)
       }
@@ -92,7 +82,7 @@ export default {
     ...mapState(useMainStore, ['messages']),
     ...mapState(useMainStore, ['getImage']),
     parsedMessages () {
-      if (this.messages.length) {
+      if (this.messages && this.messages.length) {
         return this.messages.map((message) => {
           return {
             ...message,

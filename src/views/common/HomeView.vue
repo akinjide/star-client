@@ -1,11 +1,15 @@
 <template>
   <v-container>
-    <Dashboard :tasks="userTasks" :team="userTeam" :user="user" :getRoleName="getRoleName" />
+    <Dashboard
+      :tasks="userTasks"
+      :team="userTeam"
+      :user="user"
+    />
   </v-container>
 </template>
 
 <script>
-import { mapState, mapActions } from 'pinia'
+import { mapState } from 'pinia'
 
 import Dashboard from '@/components/Dashboard.vue'
 import { useUserStore, useMainStore } from '@/stores'
@@ -18,24 +22,11 @@ export default {
   components: {
     Dashboard
   },
-  methods: {
-    ...mapActions(useUserStore, ['getUser']),
-    ...mapActions(useMainStore, ['getUserTasks']),
-    ...mapActions(useMainStore, ['getTeamByMember'])
-  },
-  async created () {
-    await this.getUserTasks(this.user.id)
-
-    if (this.user.role_id === 4) {
-      await this.getTeamByMember(this.user.id)
-    }
-  },
+  methods: {},
   computed: {
     ...mapState(useUserStore, ['user']),
-    ...mapState(useMainStore, ['userTeam']),
     ...mapState(useMainStore, ['userTasks']),
-    ...mapState(useMainStore, ['userTeam']),
-    ...mapState(useMainStore, ['getRoleName'])
+    ...mapState(useMainStore, ['userTeam'])
   }
 }
 </script>
