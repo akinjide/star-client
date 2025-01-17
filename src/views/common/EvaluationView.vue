@@ -143,6 +143,7 @@ import { mapState, mapActions } from 'pinia'
 import IconButton from '@/components/IconButton'
 import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
+import { FILTERS } from '@/stores/constants'
 
 export default {
   name: 'Evaluations',
@@ -150,12 +151,7 @@ export default {
     return {
       searchQuery: null,
       viewTopic: false,
-      filterQuery: 'All',
-      filters: [
-        'All',
-        'Evaluated',
-        'Unevaluated'
-      ]
+      filterQuery: FILTERS[0]
     }
   },
   components: {
@@ -261,6 +257,9 @@ export default {
       } else {
         return this.teams
       }
+    },
+    filters () {
+      return FILTERS
     }
   }
 }

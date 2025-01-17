@@ -71,10 +71,17 @@
                   ></IconButton>
 
                   <IconButton
-                    tooltipText="Edit Topic and Project"
+                    tooltipText="Edit Project"
                     color="green"
                     icon="mdi-file-document-edit-outline"
                     @action="select(project, 'edit_project')"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="Edit Topic"
+                    color="green"
+                    icon="mdi-file-edit-outline"
+                    @action="select(project, 'edit_topic')"
                   ></IconButton>
 
                   <IconButton
@@ -95,7 +102,7 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="topicDialog"
+      v-model="dialog.add_topic"
       max-width="600"
     >
       <v-card
@@ -161,7 +168,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="topicDialog = false"
+            @click="dialog.add_topic = false"
           ></v-btn>
 
           <v-btn
@@ -175,10 +182,9 @@
     </v-dialog>
   </div>
 
-  <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="assignProjectDialog"
+      v-model="dialog.assign_project"
       max-width="600"
     >
       <v-card
@@ -191,7 +197,7 @@
               <v-col cols="12" md="6" sm="6">
                 <v-text-field
                   label="Course Code*"
-                  v-model="project.course_code"
+                  v-model="selectedProject.course_code"
                   :rules="[rules.required]"
                   required
                 ></v-text-field>
@@ -199,9 +205,21 @@
 
               <v-col cols="12" md="6" sm="6">
                 <v-select
+                  :items="unassignedTeams"
+                  item-title="name"
+                  item-value="id"
+                  label="Team*"
+                  v-model="selectedProject.team_id"
+                  :rules="[rules.required]"
+                  required
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-select
                   label="Semester*"
                   :items="['Spring', 'Fall']"
-                  v-model="project.semester"
+                  v-model="selectedProject.semester"
                   :rules="[rules.required]"
                   required
                 ></v-select>
@@ -211,22 +229,15 @@
                 <v-select
                   label="Year*"
                   :items="years"
-                  v-model="project.year"
+                  v-model="selectedProject.year"
                   :rules="[rules.required]"
                   required
                 ></v-select>
               </v-col>
 
-              <v-col cols="12" md="6" sm="6">
-                <v-select
-                  :items="unassignedTeams"
-                  item-title="name"
-                  item-value="id"
-                  label="Team*"
-                  v-model="project.team_id"
-                  :rules="[rules.required]"
-                  required
-                ></v-select>
+              <v-col cols="12" md="12" sm="12">
+                <p class="text-subtitle-1 text-grey">Presentation Date*</p>
+                <DatePicker v-model="selectedProject.presentation_at" mode="dateTime" is24hr hide-time-header is-required expanded />
               </v-col>
             </v-row>
           </v-form>
@@ -242,7 +253,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="assignProjectDialog = false"
+            @click="dialog.assign_project = false"
           ></v-btn>
 
           <v-btn
@@ -250,17 +261,16 @@
             color="primary"
             text="Save"
             variant="tonal"
-            @click="upsert(project)"
+            @click="upsert(selectedProject)"
           ></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
 
-  <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="editProjectDialog"
+      v-model="dialog.edit_project"
       max-width="600"
     >
       <v-card
@@ -289,6 +299,31 @@
                 required
               ></v-select>
             </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-select
+                  label="Semester*"
+                  :items="['Spring', 'Fall']"
+                  v-model="selectedProject.semester"
+                  :rules="[rules.required]"
+                  required
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-select
+                  label="Year*"
+                  :items="years"
+                  v-model="selectedProject.year"
+                  :rules="[rules.required]"
+                  required
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="12" sm="12">
+                <p class="text-subtitle-1 text-grey">Presentation Date*</p>
+                <DatePicker v-model="selectedProject.presentation_at" mode="dateTime" is24hr  hide-time-header is-required expanded />
+              </v-col>
           </v-row>
 
           <small class="text-caption text-medium-emphasis">*indicates required field</small>
@@ -302,23 +337,22 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="editProjectDialog = false"
+            @click="dialog.edit_project = false"
           ></v-btn>
 
           <v-btn
             color="primary"
             text="Save"
             variant="tonal"
-            @click="upsert(project)"
+            @click="upsert(selectedProject)"
           ></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
 
-  <!-- DIALOG -->
   <PreviewDialog
-    :view="viewTopic"
+    :view="dialog.view_topic"
     :header="{
       icon: 'mdi-information',
       title: 'Topic Information'
@@ -328,37 +362,35 @@
       text: project.topic_description,
       url: getDocument(project.topic_url)
     }"
-    @close="viewTopic = false"
+    @close="dialog.view_topic = false"
   />
 </template>
 
 <script>
 import { mapState, mapActions } from 'pinia'
+import { DatePicker } from 'v-calendar'
 
 import IconButton from '@/components/IconButton'
 import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
+import { YEARS } from '@/stores/constants'
 import api from '@/api'
-
-// TOOD
-// 1. change project group, supervisor and title
-// - grading submitted reports from team
-// - changing jury member assigned to group
 
 export default {
   name: 'Project Management',
   data () {
     return {
-      topicDialog: false,
-      assignProjectDialog: false,
+      dialog: {
+        add_topic: false,
+        assign_project: false,
+        edit_project: false,
+        view_topic: false
+      },
       assignForm: false,
-      editProjectDialog: false,
-      viewTopic: false,
       topic: {},
       project: {},
       selectedProject: {},
       progress: false,
-      years: ['2024', '2025', '2026', '2027', '2028', '2029', '2030'],
       searchQuery: null,
       rules: {
         required: value => !!value || 'Field is required'
@@ -366,6 +398,7 @@ export default {
     }
   },
   components: {
+    DatePicker,
     IconButton,
     PreviewDialog
   },
@@ -384,11 +417,11 @@ export default {
     select (record, action) {
       if (action === 'view_topic') {
         this.project = record
-        this.viewTopic = true
+        this.dialog.view_topic = true
       }
 
       if (action === 'add_topic') {
-        this.topicDialog = true
+        this.dialog.add_topic = true
         this.topic = {
           ...record,
           action: action
@@ -396,19 +429,27 @@ export default {
       }
 
       if (action === 'assign_project') {
-        this.assignProjectDialog = true
-        this.project = {
+        this.dialog.assign_project = true
+        console.log(record, 'record')
+
+        this.selectedProject = {
           ...record,
           name: '',
           course_code: '',
+          presentation_at: new Date(),
           action: action
         }
       }
 
       if (action === 'edit_project') {
-        this.editProjectDialog = true
+        this.dialog.edit_project = true
         this.selectedProject = {
           ...record,
+          name: record.project_name,
+          course_code: record.project_course_code,
+          year: record.project_year,
+          semester: record.project_semester,
+          presentation_at: record.project_presentation_at ? new Date(record.project_presentation_at) : new Date(),
           action: action
         }
       }
@@ -431,17 +472,32 @@ export default {
 
         if (response && response.data) {
           console.log(response.data)
-          this.topicDialog = false
+          this.dialog.add_topic = false
           this.$router.go(this.$router.currentRoute)
         }
       }
 
       if (record.action === 'assign_project') {
-        const response = await api.projects.assign(record)
+        const response = await api.projects.create(record)
 
         if (response && response.data) {
           console.log(response.data)
-          this.topicDialog = false
+          this.dialog.assign_project = false
+          this.$router.go(this.$router.currentRoute)
+        }
+      }
+
+      if (record.action === 'edit_project') {
+        const response = await api.projects.update(record.project_id, {
+          course_code: record.course_code,
+          semester: record.semester,
+          year: record.year,
+          presentation_at: record.presentation_at
+        })
+
+        if (response && response.data) {
+          console.log(response.data)
+          this.dialog.edit_project = false
           this.$router.go(this.$router.currentRoute)
         }
       }
@@ -487,12 +543,19 @@ export default {
     },
     unassignedTeams () {
       return this.teams.filter((team) => {
+        if (this.selectedProject && this.selectedProject.supervisor_id === team.supervisor_id) {
+          return true
+        }
+
         if (team.supervisor_id) {
           return false
         }
 
         return true
       })
+    },
+    years () {
+      return YEARS
     }
   }
 }

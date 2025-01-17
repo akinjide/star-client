@@ -106,7 +106,7 @@ export default {
       formData.append('blob', file)
       formData.append('upload_type', uploadType)
 
-      return request.post('/blob/upload', formData, {
+      return request.post('blob/upload', formData, {
         params: {
           upload_type: uploadType
         },
@@ -129,15 +129,18 @@ export default {
     }
   },
   projects: {
-    all: async (topicId) => {
+    all: async () => {
       return request.get('projects')
     },
-    assign: async (record) => {
+    create: async (project) => {
       return request.post('projects', {
-        ...record,
-        name: record.topic_name,
-        description: record.topic_description
+        ...project,
+        name: project.topic_name,
+        description: project.topic_description
       })
+    },
+    update: async (projectId, project) => {
+      return request.put(`projects/${projectId}`, project)
     }
   },
   tasks: {
@@ -145,13 +148,16 @@ export default {
       return request.get(`tasks/${userId}`)
     },
     create: async (task) => {
-      return request.post('/tasks', task)
+      return request.post('tasks', task)
     },
     all: async () => {
-      return request.get('/tasks')
+      return request.get('tasks')
     },
     complete: async (taskId) => {
       return request.put(`tasks/${taskId}/complete`)
+    },
+    remove: async (taskId) => {
+      return request.delete(`tasks/${taskId}`)
     },
     update: async (taskId, task) => {
       return request.put(`tasks/${taskId}`, task)
@@ -162,23 +168,23 @@ export default {
       return request.get(`evaluations/projects/${projectId}/download`)
     },
     create: async (evaluation) => {
-      return request.post('/evaluations', evaluation)
+      return request.post('evaluations', evaluation)
     },
     all: async () => {
-      return request.get('/evaluations')
+      return request.get('evaluations')
     }
   },
   rubrics: {
     all: async () => {
-      return request.get('/rubrics')
+      return request.get('rubrics')
     }
   },
   reports: {
     create: async (report) => {
-      return request.post('/reports', report)
+      return request.post('reports', report)
     },
     all: async () => {
-      return request.get('/reports')
+      return request.get('reports')
     },
     get: async (projectId) => {
       return request.get(`reports/projects/${projectId}`)

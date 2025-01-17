@@ -70,10 +70,19 @@
                   ></IconButton>
 
                   <IconButton
-                    tooltipText="Edit Topic and Project"
+                    tooltipText="Edit Project"
                     color="green"
                     icon="mdi-file-document-edit-outline"
                     v-if="ownProject(project)"
+                    @action="select(project, 'edit_project')"
+                  ></IconButton>
+
+                  <IconButton
+                    tooltipText="Edit Topic"
+                    color="green"
+                    icon="mdi-file-edit-outline"
+                    v-if="ownProject(project)"
+                    @action="select(project, 'edit_topic')"
                   ></IconButton>
 
                   <IconButton
@@ -94,7 +103,7 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="topicDialog"
+      v-model="dialog.add_topic"
       max-width="600"
     >
       <v-card
@@ -149,7 +158,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="topicDialog = false"
+            @click="dialog.add_topic = false"
           ></v-btn>
 
           <v-btn
@@ -166,7 +175,7 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="projectDialog"
+      v-model="dialog.assign_project"
       max-width="600"
     >
       <v-card
@@ -206,7 +215,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="projectDialog = false"
+            @click="dialog.assign_project = false"
           ></v-btn>
 
           <v-btn
@@ -220,9 +229,8 @@
     </v-dialog>
   </div>
 
-  <!-- DIALOG -->
   <PreviewDialog
-    :view="viewTopic"
+    :view="dialog.view_topic"
     :header="{
       icon: 'mdi-information',
       title: 'Topic Information'
@@ -232,7 +240,7 @@
       text: project.topic_description,
       url: getDocument(project.topic_url)
     }"
-    @close="viewTopic = false"
+    @close="dialog.view_topic = false"
   />
 </template>
 
@@ -248,9 +256,11 @@ export default {
   name: 'Project Moderation',
   data () {
     return {
-      topicDialog: false,
-      projectDialog: false,
-      viewTopic: false,
+      dialog: {
+        add_topic: false,
+        assign_project: false,
+        view_topic: false
+      },
       topic: {},
       project: {},
       progress: false,
@@ -292,11 +302,11 @@ export default {
     select (record, action) {
       if (action === 'view_topic') {
         this.project = record
-        this.viewTopic = true
+        this.dialog.view_topic = true
       }
 
       if (action === 'add_topic') {
-        this.topicDialog = true
+        this.dialog.add_topic = true
         this.topic = {
           ...record,
           supervisor_id: this.user.id,
@@ -305,7 +315,7 @@ export default {
       }
 
       if (action === 'assign_project') {
-        this.projectDialog = true
+        this.dialog.assign_project = true
         this.project = {
           ...record,
           name: '',
@@ -332,7 +342,7 @@ export default {
 
         if (response && response.data) {
           console.log(response.data)
-          this.topicDialog = false
+          this.dialog.add_topic = false
           this.$router.go(this.$router.currentRoute)
         }
       }
@@ -342,7 +352,7 @@ export default {
 
         if (response && response.data) {
           console.log(response.data)
-          this.topicDialog = false
+          this.dialog.assign_project = false
           this.$router.go(this.$router.currentRoute)
         }
       }

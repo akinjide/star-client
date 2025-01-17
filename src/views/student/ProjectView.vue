@@ -65,7 +65,7 @@
 
   <!-- DIALOG -->
   <PreviewDialog
-    :view="viewTopic"
+    :view="dialog.view_topic"
     :header="{
       icon: 'mdi-information',
       title: 'Topic Information'
@@ -75,7 +75,7 @@
       text: project.topic_description,
       url: getDocument(project.topic_url)
     }"
-    @close="viewTopic = false"
+    @close="dialog.view_topic = false"
   />
 </template>
 
@@ -90,13 +90,11 @@ export default {
   name: 'Projects',
   data () {
     return {
-      topicDialog: false,
-      projectDialog: false,
-      topic: {},
+      dialog: {
+        view_topic: false
+      },
       project: {},
-      progress: false,
-      searchQuery: null,
-      viewTopic: false
+      searchQuery: null
     }
   },
   components: {
@@ -109,7 +107,7 @@ export default {
     async select (project, action) {
       if (action === 'view_topic') {
         this.project = project
-        this.viewTopic = true
+        this.dialog.view_topic = true
       }
     },
     projectStatus (project) {

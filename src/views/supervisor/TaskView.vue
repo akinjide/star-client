@@ -104,6 +104,13 @@
                     icon="mdi-eye-outline"
                     @action="select(task, 'view_task')"
                   ></IconButton>
+
+                  <IconButton
+                    tooltipText="Remove Task"
+                    color="red"
+                    icon="mdi-delete-outline"
+                    @action="select(task, 'remove_task')"
+                  ></IconButton>
                 </div>
               </td>
             </tr>
@@ -244,12 +251,23 @@
     @close="dialog.add_comment = false"
     @confirm="comment"
   />
+
+  <DeleteDialog
+    :view="dialog.remove_task"
+    :body="{
+      name: selectedTask.task_name,
+      text: 'Are you sure you want to proceed?'
+    }"
+    @close="dialog.remove_task = false"
+    @confirm="remove"
+  />
 </template>
 
 <script>
 import { mapState, mapActions } from 'pinia'
 import { DatePicker } from 'v-calendar'
 
+import DeleteDialog from '@/components/DeleteDialog'
 import IconButton from '@/components/IconButton'
 import InputDialog from '@/components/InputDialog'
 import PreviewDialog from '@/components/PreviewDialog'
@@ -264,14 +282,17 @@ export default {
         view_task: false,
         add_comment: false,
         view_comment: false,
-        grade_task: false
+        grade_task: false,
+        remove_task: false
       },
       searchQuery: null,
+      selectedTask: {},
       task: {}
     }
   },
   components: {
     DatePicker,
+    DeleteDialog,
     IconButton,
     InputDialog,
     PreviewDialog
@@ -279,6 +300,7 @@ export default {
   methods: {
     ...mapActions(useMainStore, ['addTask']),
     ...mapActions(useMainStore, ['updateTask']),
+    ...mapActions(useMainStore, ['removeTask']),
     ...mapActions(useMainStore, ['getTasks']),
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['getTeams']),
@@ -325,6 +347,11 @@ export default {
         this.task = record
         this.dialog.grade_task = true
       }
+
+      if (action === 'remove_task') {
+        this.selectedTask = record
+        this.dialog.remove_task = true
+      }
     },
     async upsert (record) {
       if (record.action === 'add_task') {
@@ -352,6 +379,16 @@ export default {
       if (response) {
         this.dialog.add_comment = false
         this.$router.go(this.$router.currentRoute)
+      }
+    },
+    async remove (confirm) {
+      if (confirm) {
+        const response = await this.removeTask(this.selectedTask.task_id)
+
+        if (response) {
+          this.dialog.remove_task = false
+          this.$router.go(this.$router.currentRoute)
+        }
       }
     }
   },

@@ -115,7 +115,7 @@
 
   <!-- DIALOG -->
   <PreviewDialog
-    :view="viewTopic"
+    :view="dialog.view_topic"
     :header="{
       icon: 'mdi-information',
       title: 'Topic Information'
@@ -125,7 +125,7 @@
       text: project.topic_description,
       url: getDocument(project.topic_url)
     }"
-    @close="viewTopic = false"
+    @close="dialog.view_topic = false"
   />
 </template>
 
@@ -135,19 +135,17 @@ import { mapState, mapActions } from 'pinia'
 import IconButton from '@/components/IconButton'
 import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
+import { FILTERS } from '@/stores/constants'
 
 export default {
   name: 'Evaluations',
   data () {
     return {
+      dialog: {
+        view_topic: false
+      },
       searchQuery: null,
-      viewTopic: false,
-      filterQuery: 'All',
-      filters: [
-        'All',
-        'Evaluated',
-        'Unevaluated'
-      ]
+      filterQuery: FILTERS[0]
     }
   },
   components: {
@@ -163,7 +161,7 @@ export default {
     async select (team, action) {
       if (action === 'view_topic') {
         await this.getProjectByTeam(team.id)
-        this.viewTopic = true
+        this.dialog.view_topic = true
       }
     },
     goToPage (team) {
@@ -250,6 +248,9 @@ export default {
       } else {
         return this.teams
       }
+    },
+    filters () {
+      return FILTERS
     }
   }
 }

@@ -205,12 +205,12 @@
   </div>
 
   <DeleteDialog
-    :view="confirmDeletion"
+    :view="dialog.remove_user"
     :body="{
       name: selectedUser.full_name,
       text: 'Are you sure you want to proceed?'
     }"
-    @close="confirmDeletion = false"
+    @close="dialog.remove_user = false"
     @confirm="remove"
   />
 </template>
@@ -227,8 +227,8 @@ export default {
   name: 'User Management',
   data () {
     return {
-      confirmDeletion: false,
       dialog: {
+        remove_user: false,
         value: false,
         title: 'Add User',
         password: {
@@ -272,7 +272,7 @@ export default {
       }
 
       if (action === 'delete_user') {
-        this.confirmDeletion = true
+        this.dialog.remove_user = true
       }
 
       this.selectedUser = {

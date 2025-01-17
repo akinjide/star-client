@@ -4,7 +4,7 @@
       <v-col cols="12">
         <h4 class="text-uppercase">Report Templates</h4>
 
-        <v-list lines="one">
+        <v-list lines="two">
           <v-list-item
             v-for="(template, index) in templates"
             :key="index"
@@ -236,7 +236,7 @@ import { mapState, mapActions } from 'pinia'
 import IconButton from '@/components/IconButton'
 import PreviewDialog from '@/components/PreviewDialog'
 import { useMainStore } from '@/stores'
-import { REPORT_TYPES, MAX_PROGRESS_REPORT } from '@/stores/constants'
+import { REPORT_TYPES, TEMPLATES, MAX_PROGRESS_REPORT } from '@/stores/constants'
 import api from '@/api'
 
 export default {
@@ -250,21 +250,7 @@ export default {
         view_comment: false
       },
       maxProgressReport: MAX_PROGRESS_REPORT,
-      report: {},
-      templates: [
-        {
-          title: 'PPM Report Template',
-          description: '<a href="/docs/1-SOFTWARE_PLANNING.docx" class="text-primary">Click to download 1-SOFTWARE_PLANNING.docx</a>'
-        },
-        {
-          title: 'Final Report Template',
-          description: '<a href="/docs/3-SOFTWARE_FINAL.docx" class="text-primary">Click to download 3-SOFTWARE_FINAL.docx</a>'
-        },
-        {
-          title: 'Progress Report Template',
-          description: '<a href="/docs/2-SOFTWARE_PROGRESS.docx" class="text-primary">Click to download 2-SOFTWARE_PROGRESS.docx</a>'
-        }
-      ]
+      report: {}
     }
   },
   components: {
@@ -434,6 +420,9 @@ export default {
       }
 
       return q
+    },
+    templates () {
+      return TEMPLATES
     }
   }
 }

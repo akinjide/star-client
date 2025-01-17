@@ -4,7 +4,7 @@
       <v-col cols="12">
         <h4 class="text-uppercase">Report Templates</h4>
 
-        <v-list lines="one">
+        <v-list lines="two">
           <v-list-item
             v-for="(template, index) in templates"
             :key="index"
@@ -28,8 +28,16 @@
           <v-card-title>{{ team.name }} Report Submissions</v-card-title>
           <v-card-subtitle>{{ getTeamSupervisor(team) }}</v-card-subtitle>
 
+          <div
+            class="pa-4 my-2"
+            v-if="!teamReport(team.id).length"
+          >
+            <h6 class="text-h6 pa-4 font-weight-bold">Pending Reports</h6>
+          </div>
+
           <v-table
             class="my-4"
+            v-if="teamReport(team.id).length"
           >
             <thead>
               <tr>
@@ -97,7 +105,7 @@
   </v-container>
 
   <PreviewDialog
-    :view="viewReport"
+    :view="dialog.view_report"
     :header="{
       icon: 'mdi-information',
       title: 'Report Information'
@@ -107,7 +115,7 @@
       text: report.report_text,
       url: getDocument(report.report_url)
     }"
-    @close="viewReport = false"
+    @close="dialog.view_report = false"
   />
 </template>
 
@@ -117,37 +125,21 @@ import { mapState, mapActions } from 'pinia'
 import IconButton from '@/components/IconButton'
 import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
+import { REPORT_TYPES, TEMPLATES } from '@/stores/constants'
 import api from '@/api'
 
 export default {
   name: 'Report',
   data () {
     return {
+      dialog: {
+        view_report: false,
+        add_report: false
+      },
       searchQuery: null,
       progress: false,
-      viewReport: false,
-      addReportDialog: false,
       maxProgressReport: 8,
       report: {},
-      reportsName: [
-        'PPM Report',
-        'Final Report',
-        'Progress Report'
-      ],
-      templates: [
-        {
-          title: 'PPM Report Template',
-          description: '<a href="/docs/1-SOFTWARE_PLANNING.docx" class="text-primary">Click to download 1-SOFTWARE_PLANNING.docx</a>'
-        },
-        {
-          title: 'Final Report Template',
-          description: '<a href="/docs/3-SOFTWARE_FINAL.docx" class="text-primary">Click to download 3-SOFTWARE_FINAL.docx</a>'
-        },
-        {
-          title: 'Progress Report Template',
-          description: '<a href="/docs/2-SOFTWARE_PROGRESS.docx" class="text-primary">Click to download 2-SOFTWARE_PROGRESS.docx</a>'
-        }
-      ],
       submissions: []
     }
   },
@@ -165,7 +157,7 @@ export default {
     async select (record, action) {
       if (action === 'add_report') {
         this.progressReportCount = 0
-        this.addReportDialog = true
+        this.dialog.add_report = true
         this.report = {
           ...record,
           action: action
@@ -174,7 +166,7 @@ export default {
 
       if (action === 'view_report') {
         this.report = record
-        this.viewReport = true
+        this.dialog.view_report = true
       }
 
       if (action === 'download_report') {
@@ -199,7 +191,7 @@ export default {
       if (record.action === 'add_report') {
         let version = 1
 
-        if (record.name === this.reportsName[2]) {
+        if (record.name === REPORT_TYPES[2]) {
           version = this.computeDedupe(this.projectReports)
         }
 
@@ -211,7 +203,7 @@ export default {
 
         if (response && response.data) {
           console.log(response.data)
-          this.addReportDialog = false
+          this.dialog.add_report = false
           this.$router.go(this.$router.currentRoute)
         }
       }
@@ -222,7 +214,7 @@ export default {
       this.$router.go(this.$router.currentRoute)
     },
     isProgressReport (submission) {
-      return submission && submission.report_name === this.reportsName[3]
+      return submission && submission.report_name === REPORT_TYPES[2]
     },
     isReportURL (submission) {
       return submission && submission.report_url && submission.report_url.length
@@ -238,7 +230,7 @@ export default {
 
       if (submissions && submissions.length) {
         for (const submission of submissions) {
-          if (submission.report_name === this.reportsName[2]) {
+          if (submission.report_name === REPORT_TYPES[2]) {
             progressReportCount++
           }
         }
@@ -283,7 +275,7 @@ export default {
     reportProgress () {
       if (this.projectReports && this.projectReports.length) {
         const progressReports = this.dedupeSubmissions.filter((submission) => {
-          if (submission.report_name === this.reportsName[2]) {
+          if (submission.report_name === REPORT_TYPES[2]) {
             return true
           }
 
@@ -310,7 +302,7 @@ export default {
           // }
         }
 
-        for (const report of this.reportsName) {
+        for (const report of REPORT_TYPES) {
           if (!q.includes(report)) {
             dedupeSubmissions.push({
               report_name: report
@@ -331,15 +323,15 @@ export default {
         submissions = submissions.concat(this.projectReports)
 
         for (const submission of submissions) {
-          if (submission.report_name === this.reportsName[2]) {
+          if (submission.report_name === REPORT_TYPES[2]) {
             progressReportCount++
           }
 
           dedupeSubmissions.push(submission.report_name)
         }
 
-        for (const report of this.reportsName) {
-          if (!q.includes(report) && report === this.reportsName[2] && progressReportCount < this.maxProgressReport) {
+        for (const report of REPORT_TYPES) {
+          if (!q.includes(report) && report === REPORT_TYPES[2] && progressReportCount < this.maxProgressReport) {
             q.push(report)
           }
 
@@ -369,6 +361,9 @@ export default {
       } else {
         return this.teams
       }
+    },
+    templates () {
+      return TEMPLATES
     }
   }
 }

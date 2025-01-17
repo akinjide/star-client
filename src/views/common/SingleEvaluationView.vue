@@ -3,6 +3,15 @@
     <v-row>
       <v-col cols="12">
         <IconButton
+          tooltipText="Back"
+          color="orange"
+          size="small"
+          icon="mdi-arrow-left"
+          v-if="!isStudent"
+          @action="$router.back()"
+        ></IconButton>
+
+        <IconButton
           tooltipText="Generate PDF"
           color="blue-grey"
           size="small"
@@ -78,14 +87,16 @@
           <v-card
             elevation="4"
             class="pa-8 my-1"
-            v-if="Object.keys(evaluationWithoutSummary).length">
+            v-if="Object.keys(evaluationWithoutSummary).length"
+          >
             <div
               class="my-8"
               v-for="(ev, key, i) in evaluationWithoutSummary"
               :key="key"
-              :id="'te-m-' + i">
+              :id="'te-m-' + i"
+            >
               <div class="pl-4">
-                <p class="font-weight-bold">{{ romIndex[i]}}. {{ key }} ({{ sectionPercentage(key) }}%)</p>
+                <p class="font-weight-bold">{{ romans[i]}}. {{ key }} ({{ sectionPercentage(key) }}%)</p>
               </div>
 
               <v-table
@@ -127,7 +138,7 @@
             elevation="4"
             class="pa-4 my-2"
             v-if="!Object.keys(evaluationWithoutSummary).length">
-            <h6 class="text-h6 pa-6">Pending Evaluation</h6>
+            <h6 class="text-h6 pa-6 font-weight-bold">Pending Evaluation</h6>
           </v-card>
         </v-col>
       </v-row>
@@ -198,14 +209,14 @@ import html2pdf from 'html2pdf.js'
 import { mapState, mapActions } from 'pinia'
 
 import IconButton from '@/components/IconButton'
-import { useUserStore, useMainStore } from '@/stores'
+import { useAuthStore, useUserStore, useMainStore } from '@/stores'
+import { ROMANS } from '@/stores/constants'
 
 export default {
   name: 'Team Evaluation Management',
   data () {
     return {
       searchQuery: null,
-      romIndex: ['I', 'II', 'III', 'IV'],
       teamId: null
     }
   },
@@ -266,6 +277,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(useAuthStore, ['isStudent']),
     ...mapState(useUserStore, ['user']),
     ...mapState(useMainStore, ['project']),
     ...mapState(useMainStore, ['team']),
@@ -330,6 +342,9 @@ export default {
       }
 
       return {}
+    },
+    romans () {
+      return ROMANS
     }
   }
 }

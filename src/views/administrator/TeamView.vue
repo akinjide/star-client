@@ -40,7 +40,8 @@
           :title="team.name"
           :subtitle="getTeamSupervisor(team)"
           elevation="4"
-          class="pa-4 mb-6">
+          class="pa-4 mb-6"
+        >
           <div class="pl-2">
             <IconButton
               tooltipText="Edit Team"
