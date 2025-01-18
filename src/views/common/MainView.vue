@@ -50,9 +50,9 @@ export default {
   name: 'Main',
   data () {
     return {
-      leftCol: 2,
-      rightCol: 2,
-      mainCol: 9,
+      leftCol: 3,
+      rightCol: 1,
+      mainCol: 8,
       leftDrawer: true,
       rightDrawer: false
     }
@@ -77,7 +77,7 @@ export default {
           this.mainCol = this.mainCol + this.leftCol
         } else {
           this.mainCol = this.mainCol - this.leftCol
-          this.leftCol = 2
+          this.leftCol = 3
         }
       }
 
