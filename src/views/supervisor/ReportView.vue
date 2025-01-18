@@ -134,70 +134,6 @@
   </v-container>
 
   <!-- DIALOG(s) -->
-  <div class="pa-4 text-center">
-    <v-dialog
-      v-model="dialog.add_report"
-      max-width="600"
-    >
-      <v-card
-        prepend-icon="mdi-account"
-        title="Add Report"
-      >
-        <v-card-text>
-          <v-row dense>
-            <v-col cols="12" md="12" sm="12">
-              <v-select
-                label="Name*"
-                :items="unsubmittedReports"
-                v-model="report.name"
-                required
-              ></v-select>
-            </v-col>
-
-            <v-col cols="12" md="12" sm="12">
-              <v-file-input
-                accept=".doc, .docx, .ppt, .pptx, .txt, .pdf"
-                label="File*"
-                placeholder="Pick a file (.doc, .docx, .ppt, .pptx,.txt or .pdf)"
-                v-model="report.file"
-                :loading="progress"
-                required
-              ></v-file-input>
-            </v-col>
-
-            <v-col cols="12" md="12" sm="12">
-              <v-textarea
-                label="(Optional) Text"
-                v-model="report.raw_text"
-              ></v-textarea>
-            </v-col>
-          </v-row>
-
-          <small class="text-caption text-medium-emphasis">*indicates required field</small>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn
-            text="Close"
-            variant="plain"
-            @click="dialog.add_report = false"
-          ></v-btn>
-
-          <v-btn
-            color="primary"
-            text="Save"
-            variant="tonal"
-            @click="upsert(report)"
-          ></v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
-
   <PreviewDialog
     :view="dialog.view_report"
     :header="{
@@ -248,7 +184,6 @@ import InputDialog from '@/components/InputDialog'
 import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
 import { REPORT_TYPES, TEMPLATES } from '@/stores/constants'
-import api from '@/api'
 
 export default {
   name: 'Report',
@@ -257,7 +192,6 @@ export default {
       dialog: {
         add_comment: false,
         view_comment: false,
-        add_report: false,
         view_report: false
       },
       progress: false,
@@ -279,16 +213,9 @@ export default {
     ...mapActions(useMainStore, ['updateReport']),
     ...mapActions(useMainStore, ['getProjectReports']),
     ...mapActions(useMainStore, ['getProjectByTeam']),
+    ...mapActions(useMainStore, ['ruleRequired']),
+    ...mapActions(useMainStore, ['ruleMinMax']),
     async select (record, action) {
-      if (action === 'add_report') {
-        this.progressReportCount = 0
-        this.dialog.add_report = true
-        this.report = {
-          ...record,
-          action: action
-        }
-      }
-
       if (action === 'view_report') {
         this.report = record
         this.dialog.view_report = true
@@ -307,39 +234,6 @@ export default {
       if (action === 'download_report') {
         if (record.report_url) {
           window.open(this.getDocument(record.report_url))
-        }
-      }
-    },
-    async upsert (record) {
-      if (record.file) {
-        const response = await api.upload.create(record.file, 'documents', event => {
-          this.progress = true
-          console.log(Math.round((100 * event.loaded) / event.total))
-        })
-
-        this.progress = false
-        const { data: { path } } = response.data
-
-        record.url = path
-      }
-
-      if (record.action === 'add_report') {
-        let version = 1
-
-        if (record.name === REPORT_TYPES[2]) {
-          version = this.computeDedupe(this.projectReports)
-        }
-
-        const response = await api.reports.create({
-          ...record,
-          project_id: this.project.project_id,
-          version: version
-        })
-
-        if (response && response.data) {
-          console.log(response.data)
-          this.dialog.add_report = false
-          this.$router.go(this.$router.currentRoute)
         }
       }
     },

@@ -74,6 +74,7 @@
                     tooltipText="Edit Project"
                     color="green"
                     icon="mdi-file-document-edit-outline"
+                    v-if="projectStatus(project) === 'unavailable'"
                     @action="select(project, 'edit_project')"
                   ></IconButton>
 
@@ -102,12 +103,12 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="dialog.add_topic"
+      v-model="dialog.topic.value"
       max-width="600"
     >
       <v-card
-        prepend-icon="mdi-account"
-        title="Add Topic"
+        prepend-icon="mdi-file-edit"
+        :title="dialog.topic.title"
       >
         <v-card-text>
           <v-row dense>
@@ -115,6 +116,7 @@
               <v-text-field
                 label="Name*"
                 v-model="topic.name"
+                :rules="ruleMinMax('Name', 10, 100)"
                 required
               ></v-text-field>
             </v-col>
@@ -123,6 +125,7 @@
               <v-text-field
                 label="Description*"
                 v-model="topic.description"
+                :rules="ruleMinMax('Description', 10, 400)"
                 required
               ></v-text-field>
             </v-col>
@@ -134,6 +137,7 @@
                 item-value="id"
                 label="Supervisor*"
                 v-model="topic.supervisor_id"
+                :rules="ruleRequired('Supervisor')"
                 required
               ></v-select>
             </v-col>
@@ -145,6 +149,7 @@
                 placeholder="Pick a file (.doc, .docx, .ppt, .pptx,.txt or .pdf)"
                 v-model="topic.file"
                 :loading="progress"
+                :rules="ruleRequired('File')"
                 required
               ></v-file-input>
             </v-col>
@@ -168,7 +173,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="dialog.add_topic = false"
+            @click="dialog.topic.value = false"
           ></v-btn>
 
           <v-btn
@@ -188,7 +193,7 @@
       max-width="600"
     >
       <v-card
-        prepend-icon="mdi-account"
+        prepend-icon="mdi-account-multiple-plus"
         title="Assign Project"
       >
         <v-card-text>
@@ -198,7 +203,7 @@
                 <v-text-field
                   label="Course Code*"
                   v-model="selectedProject.course_code"
-                  :rules="[rules.required]"
+                  :rules="ruleMinMax('Course code', 6, 8)"
                   required
                 ></v-text-field>
               </v-col>
@@ -210,7 +215,7 @@
                   item-value="id"
                   label="Team*"
                   v-model="selectedProject.team_id"
-                  :rules="[rules.required]"
+                  :rules="ruleRequired('Team')"
                   required
                 ></v-select>
               </v-col>
@@ -220,7 +225,7 @@
                   label="Semester*"
                   :items="['Spring', 'Fall']"
                   v-model="selectedProject.semester"
-                  :rules="[rules.required]"
+                  :rules="ruleRequired('Semester')"
                   required
                 ></v-select>
               </v-col>
@@ -230,14 +235,21 @@
                   label="Year*"
                   :items="years"
                   v-model="selectedProject.year"
-                  :rules="[rules.required]"
+                  :rules="ruleRequired('Year')"
                   required
                 ></v-select>
               </v-col>
 
               <v-col cols="12" md="12" sm="12">
                 <p class="text-subtitle-1 text-grey">Presentation Date*</p>
-                <DatePicker v-model="selectedProject.presentation_at" mode="dateTime" is24hr hide-time-header is-required expanded />
+                <DatePicker
+                  v-model="selectedProject.presentation_at"
+                  mode="dateTime"
+                  is24hr
+                  hide-time-header
+                  is-required
+                  expanded
+                />
               </v-col>
             </v-row>
           </v-form>
@@ -274,7 +286,7 @@
       max-width="600"
     >
       <v-card
-        prepend-icon="mdi-account"
+        prepend-icon="mdi-file-document-edit"
         title="Edit Project"
       >
         <v-card-text>
@@ -283,7 +295,7 @@
               <v-text-field
                 label="Course Code*"
                 v-model="selectedProject.course_code"
-                :rules="[rules.required]"
+                :rules="ruleMinMax('Course code', 6, 8)"
                 required
               ></v-text-field>
             </v-col>
@@ -295,7 +307,7 @@
                 item-value="id"
                 label="Team*"
                 v-model="selectedProject.team_id"
-                :rules="[rules.required]"
+                :rules="ruleRequired('Team')"
                 required
               ></v-select>
             </v-col>
@@ -305,7 +317,7 @@
                   label="Semester*"
                   :items="['Spring', 'Fall']"
                   v-model="selectedProject.semester"
-                  :rules="[rules.required]"
+                  :rules="ruleRequired('Semester')"
                   required
                 ></v-select>
               </v-col>
@@ -315,8 +327,8 @@
                   label="Year*"
                   :items="years"
                   v-model="selectedProject.year"
-                  :rules="[rules.required]"
                   required
+                  :rules="ruleRequired('Year')"
                 ></v-select>
               </v-col>
 
@@ -355,11 +367,11 @@
     :view="dialog.view_topic"
     :header="{
       icon: 'mdi-information',
-      title: 'Topic Information'
+      title: project.topic_name
     }"
     :body="{
-      name: project.topic_name,
-      text: project.topic_description,
+      name: project.topic_description,
+      text: project.topic_raw_text ? project.topic_raw_text : 'No additional note :)',
       url: getDocument(project.topic_url)
     }"
     @close="dialog.view_topic = false"
@@ -381,7 +393,10 @@ export default {
   data () {
     return {
       dialog: {
-        add_topic: false,
+        topic: {
+          value: false,
+          title: 'Add Topic'
+        },
         assign_project: false,
         edit_project: false,
         view_topic: false
@@ -391,10 +406,7 @@ export default {
       project: {},
       selectedProject: {},
       progress: false,
-      searchQuery: null,
-      rules: {
-        required: value => !!value || 'Field is required'
-      }
+      searchQuery: null
     }
   },
   components: {
@@ -407,6 +419,8 @@ export default {
     ...mapActions(useMainStore, ['getTeams']),
     ...mapActions(useMainStore, ['getTopics']),
     ...mapActions(useMainStore, ['getProjects']),
+    ...mapActions(useMainStore, ['ruleRequired']),
+    ...mapActions(useMainStore, ['ruleMinMax']),
     projectStatus (project) {
       if (project.team_id) {
         return 'unavailable'
@@ -421,17 +435,28 @@ export default {
       }
 
       if (action === 'add_topic') {
-        this.dialog.add_topic = true
+        this.dialog.topic.value = true
+        this.dialog.topic.title = 'Add Topic'
         this.topic = {
           ...record,
           action: action
         }
       }
 
+      if (action === 'edit_topic') {
+        this.dialog.topic.value = true
+        this.dialog.topic.title = 'Edit Topic'
+        this.topic = {
+          ...record,
+          name: record.topic_name,
+          description: record.topic_description,
+          raw_text: record.topic_raw_text,
+          action: action
+        }
+      }
+
       if (action === 'assign_project') {
         this.dialog.assign_project = true
-        console.log(record, 'record')
-
         this.selectedProject = {
           ...record,
           name: '',
@@ -472,7 +497,17 @@ export default {
 
         if (response && response.data) {
           console.log(response.data)
-          this.dialog.add_topic = false
+          this.dialog.topic.value = false
+          this.$router.go(this.$router.currentRoute)
+        }
+      }
+
+      if (record.action === 'edit_topic') {
+        const response = await api.topics.update(record.topic_id, record)
+
+        if (response && response.data) {
+          console.log(response.data)
+          this.dialog.topic.value = false
           this.$router.go(this.$router.currentRoute)
         }
       }

@@ -30,7 +30,7 @@
                 outlined
                 dense
                 required
-                :rules="[rules.required]"
+                :rules="ruleRequired('Email')"
               />
               <v-text-field
                 v-model="password.value"
@@ -41,7 +41,7 @@
                 outlined
                 dense
                 required
-                :rules="[rules.required]"
+                :rules="ruleRequired('Password')"
               />
 
               <v-btn :disabled="!loginForm" type="submit" color="primary" block class="login-btn">
@@ -57,7 +57,7 @@
 
 <script>
 import { mapActions } from 'pinia'
-import { useAuthStore, useUserStore } from '@/stores'
+import { useAuthStore, useUserStore, useMainStore } from '@/stores'
 
 export default {
   data () {
@@ -70,15 +70,13 @@ export default {
         type: 'password',
         value: ''
       },
-      email: '',
-      rules: {
-        required: value => !!value || 'Field is required'
-      }
+      email: ''
     }
   },
   methods: {
     ...mapActions(useUserStore, ['getUser']),
     ...mapActions(useAuthStore, ['authenticate']),
+    ...mapActions(useMainStore, ['ruleRequired']),
     async login () {
       this.hasError = false
 

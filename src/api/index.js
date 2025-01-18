@@ -126,6 +126,9 @@ export default {
     },
     create: async (topic) => {
       return request.post('topics', topic)
+    },
+    update: async (topicId, topic) => {
+      return request.put(`topics/${topicId}`, topic)
     }
   },
   projects: {

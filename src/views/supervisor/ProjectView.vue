@@ -103,12 +103,12 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="dialog.add_topic"
+      v-model="dialog.topic.value"
       max-width="600"
     >
       <v-card
-        prepend-icon="mdi-account"
-        title="Add Topic"
+        prepend-icon="mdi-file-edit"
+        :title="dialog.topic.title"
       >
         <v-card-text>
           <v-row dense>
@@ -116,6 +116,7 @@
               <v-text-field
                 label="Name*"
                 v-model="topic.name"
+                :rules="ruleMinMax('Name', 10, 100)"
                 required
               ></v-text-field>
             </v-col>
@@ -124,6 +125,7 @@
               <v-text-field
                 label="Description*"
                 v-model="topic.description"
+                :rules="ruleMinMax('Description', 10, 400)"
                 required
               ></v-text-field>
             </v-col>
@@ -135,6 +137,7 @@
                 placeholder="Pick a file (.doc, .docx, .ppt, .pptx,.txt or .pdf)"
                 v-model="topic.file"
                 :loading="progress"
+                :rules="ruleRequired('File')"
                 required
               ></v-file-input>
             </v-col>
@@ -158,7 +161,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="dialog.add_topic = false"
+            @click="dialog.topic.value = false"
           ></v-btn>
 
           <v-btn
@@ -172,14 +175,13 @@
     </v-dialog>
   </div>
 
-  <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
       v-model="dialog.assign_project"
       max-width="600"
     >
       <v-card
-        prepend-icon="mdi-account"
+        prepend-icon="mdi-account-multiple-plus"
         title="Assign Project"
       >
         <v-card-text>
@@ -187,7 +189,8 @@
             <v-col cols="12" md="6" sm="6">
               <v-text-field
                 label="Course Code*"
-                v-model="project.course_code"
+                v-model="selectedProject.course_code"
+                :rules="ruleMinMax('Course code', 6, 8)"
                 required
               ></v-text-field>
             </v-col>
@@ -198,9 +201,42 @@
                 item-title="name"
                 item-value="id"
                 label="Team*"
-                v-model="project.team_id"
+                v-model="selectedProject.team_id"
+                :rules="ruleRequired('Team')"
                 required
               ></v-select>
+            </v-col>
+
+            <v-col cols="12" md="6" sm="6">
+              <v-select
+                label="Semester*"
+                :items="['Spring', 'Fall']"
+                v-model="selectedProject.semester"
+                :rules="ruleRequired('Semester')"
+                required
+              ></v-select>
+            </v-col>
+
+            <v-col cols="12" md="6" sm="6">
+              <v-select
+                label="Year*"
+                :items="years"
+                v-model="selectedProject.year"
+                :rules="ruleRequired('Year')"
+                required
+              ></v-select>
+            </v-col>
+
+            <v-col cols="12" md="12" sm="12">
+              <p class="text-subtitle-1 text-grey">Presentation Date*</p>
+              <DatePicker
+                v-model="selectedProject.presentation_at"
+                mode="dateTime"
+                is24hr
+                hide-time-header
+                is-required
+                expanded
+              />
             </v-col>
           </v-row>
 
@@ -222,7 +258,97 @@
             color="primary"
             text="Save"
             variant="tonal"
-            @click="upsert(project)"
+            @click="upsert(selectedProject)"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+
+  <div class="pa-4 text-center">
+    <v-dialog
+      v-model="dialog.edit_project"
+      max-width="600"
+    >
+      <v-card
+        prepend-icon="mdi-file-document-edit"
+        title="Edit Project"
+      >
+        <v-card-text>
+          <v-row dense>
+            <v-col cols="12" md="6" sm="6">
+              <v-text-field
+                label="Course Code*"
+                v-model="selectedProject.course_code"
+                :rules="ruleMinMax('Course code', 6, 8)"
+                required
+              ></v-text-field>
+            </v-col>
+
+            <v-col cols="12" md="6" sm="6">
+              <v-select
+                :items="unassignedTeams"
+                item-title="name"
+                item-value="id"
+                label="Team*"
+                v-model="selectedProject.team_id"
+                :rules="ruleRequired('Team')"
+                required
+              ></v-select>
+            </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-select
+                  label="Semester*"
+                  :items="['Spring', 'Fall']"
+                  v-model="selectedProject.semester"
+                  :rules="ruleRequired('Semester')"
+                  required
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-select
+                  label="Year*"
+                  :items="years"
+                  v-model="selectedProject.year"
+                  required
+                  :rules="ruleRequired('Year')"
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="12" sm="12">
+                <p class="text-subtitle-1 text-grey">Presentation Date*</p>
+                <DatePicker
+                  v-model="selectedProject.presentation_at"
+                  mode="dateTime"
+                  is24hr
+                  hide-time-header
+                  is-required
+                  expanded
+                />
+              </v-col>
+          </v-row>
+
+          <small class="text-caption text-medium-emphasis">*indicates required field</small>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            text="Close"
+            variant="plain"
+            @click="dialog.edit_project = false"
+          ></v-btn>
+
+          <v-btn
+            color="primary"
+            text="Save"
+            variant="tonal"
+            @click="upsert(selectedProject)"
           ></v-btn>
         </v-card-actions>
       </v-card>
@@ -233,11 +359,11 @@
     :view="dialog.view_topic"
     :header="{
       icon: 'mdi-information',
-      title: 'Topic Information'
+      title: project.topic_name
     }"
     :body="{
-      name: project.topic_name,
-      text: project.topic_description,
+      name: project.topic_description,
+      text: project.topic_raw_text ? project.topic_raw_text : 'No additional note :)',
       url: getDocument(project.topic_url)
     }"
     @close="dialog.view_topic = false"
@@ -246,10 +372,12 @@
 
 <script>
 import { mapState, mapActions } from 'pinia'
+import { DatePicker } from 'v-calendar'
 
 import IconButton from '@/components/IconButton'
 import PreviewDialog from '@/components/PreviewDialog'
 import { useUserStore, useMainStore } from '@/stores'
+import { YEARS } from '@/stores/constants'
 import api from '@/api'
 
 export default {
@@ -257,17 +385,23 @@ export default {
   data () {
     return {
       dialog: {
-        add_topic: false,
+        topic: {
+          value: false,
+          title: 'Add Topic'
+        },
         assign_project: false,
+        edit_project: false,
         view_topic: false
       },
       topic: {},
       project: {},
+      selectedProject: {},
       progress: false,
       searchQuery: null
     }
   },
   components: {
+    DatePicker,
     IconButton,
     PreviewDialog
   },
@@ -276,6 +410,8 @@ export default {
     ...mapActions(useMainStore, ['getTeams']),
     ...mapActions(useMainStore, ['getTopics']),
     ...mapActions(useMainStore, ['getProjects']),
+    ...mapActions(useMainStore, ['ruleRequired']),
+    ...mapActions(useMainStore, ['ruleMinMax']),
     projectStatus (project) {
       if (project.team_id) {
         return 'unavailable'
@@ -306,7 +442,8 @@ export default {
       }
 
       if (action === 'add_topic') {
-        this.dialog.add_topic = true
+        this.dialog.topic.value = true
+        this.dialog.topic.title = 'Add Topic'
         this.topic = {
           ...record,
           supervisor_id: this.user.id,
@@ -314,12 +451,37 @@ export default {
         }
       }
 
+      if (action === 'edit_topic') {
+        this.dialog.topic.value = true
+        this.dialog.topic.title = 'Edit Topic'
+        this.topic = {
+          ...record,
+          name: record.topic_name,
+          description: record.topic_description,
+          raw_text: record.topic_raw_text,
+          action: action
+        }
+      }
+
       if (action === 'assign_project') {
         this.dialog.assign_project = true
-        this.project = {
+        this.selectedProject = {
           ...record,
           name: '',
           course_code: '',
+          action: action
+        }
+      }
+
+      if (action === 'edit_project') {
+        this.dialog.edit_project = true
+        this.selectedProject = {
+          ...record,
+          name: record.project_name,
+          course_code: record.project_course_code,
+          year: record.project_year,
+          semester: record.project_semester,
+          presentation_at: record.project_presentation_at ? new Date(record.project_presentation_at) : new Date(),
           action: action
         }
       }
@@ -342,17 +504,42 @@ export default {
 
         if (response && response.data) {
           console.log(response.data)
-          this.dialog.add_topic = false
+          this.dialog.topic.value = false
+          this.$router.go(this.$router.currentRoute)
+        }
+      }
+
+      if (record.action === 'edit_topic') {
+        const response = await api.topics.update(record.topic_id, record)
+
+        if (response && response.data) {
+          console.log(response.data)
+          this.dialog.topic.value = false
           this.$router.go(this.$router.currentRoute)
         }
       }
 
       if (record.action === 'assign_project') {
-        const response = await api.projects.assign(record)
+        const response = await api.projects.create(record)
 
         if (response && response.data) {
           console.log(response.data)
           this.dialog.assign_project = false
+          this.$router.go(this.$router.currentRoute)
+        }
+      }
+
+      if (record.action === 'edit_project') {
+        const response = await api.projects.update(record.project_id, {
+          course_code: record.course_code,
+          semester: record.semester,
+          year: record.year,
+          presentation_at: record.presentation_at
+        })
+
+        if (response && response.data) {
+          console.log(response.data)
+          this.dialog.edit_project = false
           this.$router.go(this.$router.currentRoute)
         }
       }
@@ -403,6 +590,9 @@ export default {
 
         return true
       })
+    },
+    years () {
+      return YEARS
     }
   }
 }

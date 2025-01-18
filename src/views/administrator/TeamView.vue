@@ -39,6 +39,7 @@
           :key="index"
           :title="team.name"
           :subtitle="getTeamSupervisor(team)"
+          :prepend-avatar="getImage(team.image)"
           elevation="4"
           class="pa-4 mb-6"
         >
@@ -189,12 +190,12 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="dialog"
+      v-model="dialog.value"
       max-width="600"
     >
       <v-card
         prepend-icon="mdi-account"
-        title="Add Team"
+        :title="dialog.title"
       >
         <v-card-text>
           <v-row dense>
@@ -203,6 +204,7 @@
                 label="Name*"
                 v-model="selectedTeam.name"
                 required
+                :rules="ruleMinMax('Name', 5, 80)"
               ></v-text-field>
             </v-col>
 
@@ -210,6 +212,7 @@
               <v-textarea
                 label="Description"
                 v-model="selectedTeam.description"
+                :rules="ruleMinMax('Description', -1, 400, true)"
               ></v-textarea>
             </v-col>
 
@@ -232,6 +235,7 @@
                 label="Team Lead*"
                 v-model="selectedTeam.lead"
                 required
+                :rules="ruleRequired('Team Lead')"
               ></v-select>
             </v-col>
 
@@ -246,6 +250,7 @@
                 multiple
                 chips
                 required
+                :rules="ruleRequired('Members')"
               ></v-select>
             </v-col>
           </v-row>
@@ -261,7 +266,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="dialog = false"
+            @click="dialog.value = false"
           ></v-btn>
 
           <v-btn
@@ -288,7 +293,11 @@ export default {
   name: 'Team Management',
   data () {
     return {
-      dialog: false,
+      dialog: {
+        value: false,
+        title: 'Add Team',
+        action: 'add_team'
+      },
       searchQuery: null,
       selectedTeam: {},
       cleanSelectedTeam: null,
@@ -302,6 +311,8 @@ export default {
   methods: {
     ...mapActions(useMainStore, ['getUsers']),
     ...mapActions(useMainStore, ['getTeams']),
+    ...mapActions(useMainStore, ['ruleRequired']),
+    ...mapActions(useMainStore, ['ruleMinMax']),
     select (team, action) {
       let lead = null
       const members = []
@@ -317,18 +328,27 @@ export default {
         }
       }
 
-      this.dialog = true
       this.cleanSelectedTeam = {
         ...team,
         lead: lead,
         members: members
       }
-
+      this.dialog.action = action
       this.selectedTeam = {
         ...team,
         lead: lead,
         members: members,
         action: action
+      }
+
+      if (action === 'add_team') {
+        this.dialog.title = 'Add Team'
+        this.dialog.value = true
+      }
+
+      if (action === 'edit_team') {
+        this.dialog.title = 'Edit Team'
+        this.dialog.value = true
       }
     },
     async upsert (team) {
@@ -357,7 +377,9 @@ export default {
             const responses = []
 
             for (const member of team.members) {
-              responses.push(api.teams.addMember(teamId, { member_id: member, is_lead: false }))
+              if (member !== team.lead) {
+                responses.push(api.teams.addMember(teamId, { member_id: member, is_lead: false }))
+              }
             }
 
             if (team.lead) {
@@ -367,7 +389,7 @@ export default {
             const result = await Promise.allSettled(responses)
 
             if (result) {
-              this.dialog = false
+              this.dialog.value = false
               this.$router.go(this.$router.currentRoute)
             }
           }
@@ -375,7 +397,6 @@ export default {
 
         if (team.action === 'edit_team') {
           const response = await api.teams.update(team.id, team)
-          console.log(response)
 
           if (response && response.data) {
             const responses = []
@@ -415,7 +436,7 @@ export default {
             const result = await Promise.allSettled(responses)
 
             if (result) {
-              this.dialog = false
+              this.dialog.value = false
               this.$router.go(this.$router.currentRoute)
             }
           }
@@ -495,10 +516,12 @@ export default {
           }
         }
 
-        if (this.selectedTeam) {
-          for (const student of this.getStudents) {
-            if (this.selectedTeam.members.includes(student.id) || this.selectedTeam.lead === student.id) {
-              currentTeamMembers.push(student)
+        if (this.dialog.action === 'edit_team') {
+          if (this.selectedTeam) {
+            for (const student of this.getStudents) {
+              if (this.selectedTeam.members.includes(student.id) || this.selectedTeam.lead === student.id) {
+                currentTeamMembers.push(student)
+              }
             }
           }
         }
@@ -510,6 +533,7 @@ export default {
         }
       }
 
+      console.log(studentsWithoutTeam.concat(currentTeamMembers))
       return studentsWithoutTeam.concat(currentTeamMembers)
     }
   }

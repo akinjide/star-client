@@ -38,6 +38,7 @@
           :key="index"
           :title="team.name"
           :subtitle="team.description"
+          :prepend-avatar="getImage(team.image)"
           elevation="4"
           class="pa-4 mb-6">
           <div class="pl-4 d-flex align-center justify-space-between">

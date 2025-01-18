@@ -154,6 +154,7 @@
                 label="Name*"
                 :items="unsubmittedReports"
                 v-model="report.name"
+                :rules="ruleMinMax('Name', 10, 50)"
                 required
               ></v-select>
             </v-col>
@@ -165,6 +166,7 @@
                 placeholder="Pick a file (.doc, .docx, .ppt, .pptx,.txt or .pdf)"
                 v-model="report.file"
                 :loading="progress"
+                :rules="ruleRequired('File')"
                 required
               ></v-file-input>
             </v-col>
@@ -260,6 +262,8 @@ export default {
   methods: {
     ...mapActions(useMainStore, ['getReports']),
     ...mapActions(useMainStore, ['deleteReport']),
+    ...mapActions(useMainStore, ['ruleRequired']),
+    ...mapActions(useMainStore, ['ruleMinMax']),
     async select (record, action) {
       if (action === 'add_report') {
         this.progressReportCount = 0
@@ -394,7 +398,7 @@ export default {
       return dedupeSubmissions
     },
     unsubmittedReports () {
-      const q = []
+      let q = []
       const dedupeSubmissions = []
       const submissions = this.projectReports
       let progressReportCount = 0
@@ -417,6 +421,8 @@ export default {
             q.push(report)
           }
         }
+      } else {
+        q = REPORT_TYPES
       }
 
       return q

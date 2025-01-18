@@ -40,6 +40,8 @@
             label="What to speak with EMU Graduating students of 2025?"
             variant="outlined"
             v-model="message"
+            :rules="ruleRequired('Message')"
+            required
           ></v-textarea>
           <v-btn variant="tonal" color="purple" @click="create(message)">
             Send community note
@@ -65,6 +67,7 @@ export default {
   methods: {
     ...mapActions(useMainStore, ['getMessages']),
     ...mapActions(useMainStore, ['createMessage']),
+    ...mapActions(useMainStore, ['ruleRequired']),
     async create (message) {
       const { errorMessage } = await this.createMessage(message)
 

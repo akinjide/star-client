@@ -70,7 +70,7 @@
                     tooltipText="Edit Task"
                     color="green"
                     icon="mdi-pencil-plus-outline"
-                    @action="select({}, 'add_task')"
+                    @action="select(task, 'edit_task')"
                     v-if="!task.task_submitted_at"
                   ></IconButton>
 
@@ -123,12 +123,12 @@
   <!-- DIALOG -->
   <div class="pa-4 text-center">
     <v-dialog
-      v-model="dialog.add_task"
+      v-model="dialog.task.value"
       max-width="600"
     >
       <v-card
         prepend-icon="mdi-account"
-        title="Add Task"
+        :title="dialog.task.title"
       >
         <v-card-text>
           <v-row dense>
@@ -137,6 +137,7 @@
                 label="Name*"
                 v-model="task.name"
                 required
+                :rules="ruleMinMax('Name', 5, 100)"
               ></v-text-field>
             </v-col>
 
@@ -145,6 +146,7 @@
                 label="Description*"
                 v-model="task.description"
                 required
+                :rules="ruleMinMax('Description', 20, 400)"
               ></v-textarea>
             </v-col>
 
@@ -164,12 +166,20 @@
                 label="Student*"
                 v-model="task.user_id"
                 required
+                :rules="ruleRequired('Student')"
               ></v-select>
             </v-col>
 
             <v-col cols="12" md="12" sm="12">
               <p class="text-subtitle-1 text-grey">Deadline*</p>
-              <DatePicker v-model="task.ends_at" mode="dateTime" is24hr  hide-time-header is-required expanded />
+              <DatePicker
+                v-model="task.ends_at"
+                mode="dateTime"
+                is24hr
+                hide-time-header
+                is-required
+                expanded
+              />
             </v-col>
           </v-row>
 
@@ -184,7 +194,7 @@
           <v-btn
             text="Close"
             variant="plain"
-            @click="dialog.add_task = false"
+            @click="dialog.task.value = false"
           ></v-btn>
 
           <v-btn
@@ -278,7 +288,10 @@ export default {
   data () {
     return {
       dialog: {
-        add_task: false,
+        task: {
+          value: false,
+          title: 'Add Task'
+        },
         view_task: false,
         add_comment: false,
         view_comment: false,
@@ -308,14 +321,17 @@ export default {
     ...mapActions(useMainStore, ['getProjects']),
     ...mapActions(useMainStore, ['getTeamBySupervisor']),
     ...mapActions(useMainStore, ['getSupervisorStudents']),
+    ...mapActions(useMainStore, ['ruleRequired']),
+    ...mapActions(useMainStore, ['ruleMinMax']),
     select (record, action) {
       if (action === 'add_task') {
-        this.dialog.add_task = true
+        this.dialog.task.title = 'Add Task'
         this.task = {
           ...record,
           ends_at: new Date(),
           action: action
         }
+        this.dialog.task.value = true
       }
 
       if (action === 'view_task') {
@@ -324,13 +340,16 @@ export default {
       }
 
       if (action === 'edit_task') {
-        // this.projectDialog = true
-        // this.project = {
-        //   ...record,
-        //   name: '',
-        //   course_code: '',
-        //   action: action
-        // }
+        this.dialog.task.title = 'Edit Task'
+        this.task = {
+          ...record,
+          name: record.task_name,
+          description: record.task_description,
+          raw_text: record.task_raw_text,
+          ends_at: record.task_ends_at,
+          action: action
+        }
+        this.dialog.task.value = true
       }
 
       if (action === 'view_comment') {
@@ -358,7 +377,16 @@ export default {
         const response = await this.addTask(record)
 
         if (response) {
-          this.dialog.add_task = false
+          this.dialog.task.value = false
+          this.$router.go(this.$router.currentRoute)
+        }
+      }
+
+      if (record.action === 'edit_task') {
+        const response = await this.updateTask(record.task_id, record)
+
+        if (response) {
+          this.dialog.task.value = false
           this.$router.go(this.$router.currentRoute)
         }
       }

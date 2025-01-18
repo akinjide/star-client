@@ -100,6 +100,7 @@
                 label="Full name*"
                 v-model="selectedUser.full_name"
                 required
+                :rules="ruleMinMax('Full name', 10, 100)"
               ></v-text-field>
             </v-col>
 
@@ -118,6 +119,7 @@
               <v-text-field
                 label="Title"
                 v-model="selectedUser.title"
+                :rules="ruleMinMax('Title', -1, 10, true)"
               ></v-text-field>
             </v-col>
 
@@ -126,6 +128,7 @@
                 label="Email*"
                 v-model="selectedUser.email"
                 required
+                :rules="ruleMinMax('Email', 10, 100)"
               ></v-text-field>
             </v-col>
 
@@ -133,6 +136,7 @@
               <v-text-field
                 label="Department"
                 v-model="selectedUser.department"
+                :rules="ruleMinMax('Department', -1, 100, true)"
               ></v-text-field>
             </v-col>
 
@@ -151,6 +155,7 @@
                 item-title="name"
                 item-value="id"
                 required
+                :rules="ruleRequired('Role')"
               ></v-select>
             </v-col>
 
@@ -162,6 +167,7 @@
                 @click:appendInner="togglePassword('password')"
                 v-model="selectedUser.password"
                 required
+                :rules="ruleRequired('Password', dialog.password.skip)"
               ></v-text-field>
             </v-col>
 
@@ -174,6 +180,7 @@
                 @click:appendInner="togglePassword('nPassword')"
                 v-model="selectedUser.confirm_password"
                 required
+                :rules="ruleRequired('Confirm Password', dialog.nPassword.skip)"
                 persistent-hint
               ></v-text-field>
             </v-col>
@@ -234,12 +241,14 @@ export default {
         password: {
           label: 'Password',
           icon: 'mdi-eye-outline',
-          type: 'password'
+          type: 'password',
+          skip: false
         },
         nPassword: {
           label: 'Confirm password',
           icon: 'mdi-eye-outline',
-          type: 'password'
+          type: 'password',
+          skip: false
         }
       },
       searchQuery: null,
@@ -256,11 +265,15 @@ export default {
     ...mapActions(useMainStore, ['createUser']),
     ...mapActions(useMainStore, ['updateUser']),
     ...mapActions(useMainStore, ['deleteUser']),
+    ...mapActions(useMainStore, ['ruleRequired']),
+    ...mapActions(useMainStore, ['ruleMinMax']),
     select (user, action) {
       if (action === 'create_user') {
         this.dialog.title = 'Add User'
         this.dialog.password.label = 'Password'
         this.dialog.nPassword.label = 'Confirm password'
+        this.dialog.password.skip = false
+        this.dialog.nPassword.skip = false
         this.dialog.value = true
       }
 
@@ -268,6 +281,8 @@ export default {
         this.dialog.title = 'Edit User'
         this.dialog.password.label = 'Change password'
         this.dialog.nPassword.label = 'Confirm new password'
+        this.dialog.password.skip = true
+        this.dialog.nPassword.skip = true
         this.dialog.value = true
       }
 
@@ -293,18 +308,18 @@ export default {
       }
 
       if (user.action === 'create_user') {
-        const response = await this.createUser(user)
+        const { errorMessage } = await this.createUser(user)
 
-        if (response) {
+        if (!errorMessage) {
           this.dialog = false
           this.$router.go(this.$router.currentRoute)
         }
       }
 
       if (user.action === 'edit_user') {
-        const response = await this.updateUser(user.id, user)
+        const { errorMessage } = await this.updateUser(user.id, user)
 
-        if (response) {
+        if (!errorMessage) {
           this.dialog = false
           this.$router.go(this.$router.currentRoute)
         }
@@ -312,9 +327,11 @@ export default {
     },
     async remove (confirm) {
       if (confirm) {
-        const response = await this.deleteUser(this.selectedUser.id)
-        console.log(response)
-        this.$router.go(this.$router.currentRoute)
+        const { errorMessage } = await this.deleteUser(this.selectedUser.id)
+
+        if (!errorMessage) {
+          this.$router.go(this.$router.currentRoute)
+        }
       }
     },
     togglePassword (action) {

@@ -128,13 +128,51 @@ export const useMainStore = defineStore('main', {
       this.reports = []
       this.supervisorStudents = []
     },
+    ruleRequired (field, skip) {
+      if (skip) {
+        return []
+      }
+
+      return [
+        v => !!v || `${field} is required`
+      ]
+    },
+    ruleMinMax (field, min, max, skip) {
+      const rules = [...this.ruleRequired(field, skip)]
+
+      if (min > -1) {
+        rules.push(v => (v && v.length >= min) || `${field} should be above ${min}`)
+      }
+
+      if (max > -1) {
+        rules.push(v => (v && v.length <= max) || `${field} should be below ${max}`)
+      }
+
+      return rules
+    },
     async getTopics () {
-      const { data: { data } } = await api.topics.all()
-      this.topics = data
+      try {
+        const response = await api.topics.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.topics = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getProjects () {
-      const { data: { data } } = await api.projects.all()
-      this.projects = data
+      try {
+        const response = await api.projects.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.projects = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getProjectByTeam (teamId) {
       if (this.projects && this.projects.length) {
@@ -149,8 +187,8 @@ export const useMainStore = defineStore('main', {
       return this.project
     },
     async getSupervisorStudents (supervisorId) {
-      this.supervisorStudents = []
       const team = await this.getTeamBySupervisor(supervisorId)
+      this.supervisorStudents = []
 
       if (team) {
         for (const member of team.members) {
@@ -186,69 +224,113 @@ export const useMainStore = defineStore('main', {
       return this.team
     },
     async getTeamByMember (memberId) {
-      const { data: { data } } = await api.teams.getByMember(memberId)
-      this.userTeam = data
-      return this.userTeam
+      try {
+        const response = await api.teams.getByMember(memberId)
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.userTeam = data
+        return this.userTeam
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getTeams () {
-      const { data } = await api.teams.all()
-      this.teams = data.data
+      try {
+        const response = await api.teams.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.teams = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getMessages () {
-      const { data: { data } } = await api.messages.all()
-      this.messages = data
+      try {
+        const response = await api.messages.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.messages = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async createMessage (message) {
       try {
         const response = await api.messages.create(message)
-        return api.unwrap(response)
+        const result = api.unwrap(response)
+
+        return result
       } catch (err) {
         return api.handleError(err)
       }
     },
     async getUsers () {
-      const { data } = await api.users.all()
-      this.users = data.data
+      try {
+        const response = await api.users.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.users = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getUserTasks (userId) {
-      const { data: { data } } = await api.tasks.get(userId)
-      this.userTasks = data
+      try {
+        const response = await api.tasks.get(userId)
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.userTasks = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getTasks () {
-      const { data: { data } } = await api.tasks.all()
-      console.log(data)
-      this.tasks = data
+      try {
+        const response = await api.tasks.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.tasks = data
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async createUser (user) {
       // check user is admin
       try {
-        const { data: { data } } = await api.users.create(user)
-        console.log(data)
-        return true
+        const response = await api.users.create(user)
+        const result = api.unwrap(response)
+        return result
       } catch (err) {
-        console.log(err)
-        return false
+        return api.handleError(err)
       }
     },
     async updateUser (userId, user) {
       // check user is admin
       try {
-        const { data: { data } } = await api.users.update(userId, user)
-        console.log(data)
-        return true
+        const response = await api.users.update(userId, user)
+        const result = api.unwrap(response)
+        return result
       } catch (err) {
-        console.log(err)
-        return false
+        return api.handleError(err)
       }
     },
     async deleteUser (userId) {
       try {
-        const { data: { data } } = await api.users.delete(userId)
-        console.log(data)
-        return true
+        const response = await api.users.delete(userId)
+        const result = api.unwrap(response)
+        return result
       } catch (err) {
-        console.log(err)
-        return false
+        return api.handleError(err)
       }
     },
     async getRubrics () {
@@ -299,6 +381,11 @@ export const useMainStore = defineStore('main', {
     },
     async completeTask (taskId) {
       const { data: { data } } = await api.tasks.complete(taskId)
+      console.log(data)
+      return true
+    },
+    async removeTask (taskId) {
+      const { data: { data } } = await api.tasks.remove(taskId)
       console.log(data)
       return true
     },

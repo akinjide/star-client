@@ -39,12 +39,12 @@
               <tbody>
                 <tr>
                   <td class="text-left">Student Name:</td>
-                  <td class="text-end">{{ teamLead.full_name }}</td>
+                  <td class="text-end">{{ student.full_name }}</td>
                 </tr>
 
                 <tr>
                   <td class="text-left">Student No:</td>
-                  <td class="text-end">{{ teamLead.student_number }}</td>
+                  <td class="text-end">{{ student.student_number }}</td>
                 </tr>
 
                 <tr>
@@ -306,7 +306,11 @@ export default {
 
         return members
           .filter((member) => {
-            if (!member.is_lead) {
+            if (!this.isStudent && !member.is_lead) {
+              return true
+            }
+
+            if (this.isStudent && this.user.id !== member.member_id) {
               return true
             }
 
@@ -320,18 +324,23 @@ export default {
 
       return ''
     },
-    teamLead () {
+    student () {
       if (this.team && Object.keys(this.team).length) {
         const { members } = this.team
 
-        return members
-          .filter((member) => {
-            if (member.is_lead) {
-              return true
-            }
+        const [member] = members.filter((member) => {
+          if (this.isStudent && this.user.id === member.member_id) {
+            return true
+          }
 
-            return false
-          })[0]
+          if (member.is_lead) {
+            return true
+          }
+
+          return false
+        })
+
+        return member
       }
 
       return {}
