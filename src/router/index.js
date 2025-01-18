@@ -2,6 +2,7 @@ import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import { useAuthStore } from '@/stores/auth'
+import { SERVER_ADDRESS } from '@/stores/constants'
 
 const routes = [
   {
@@ -218,8 +219,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  mode: 'history',
+  history: createWebHistory(SERVER_ADDRESS),
   routes
 })
 
