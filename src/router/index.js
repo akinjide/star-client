@@ -7,7 +7,7 @@ const routes = [
   {
     path: '/',
     name: 'login',
-    component: () => import('../views/common/LoginView.vue'),
+    component: () => import('@/views/common/LoginView.vue'),
     meta: {
       title: 'Star - Login'
     }
@@ -15,7 +15,7 @@ const routes = [
   {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import('../views/common/MainView.vue'),
+    component: () => import('@/views/common/MainView.vue'),
     meta: {
       title: 'Star - Dashboard',
       requiresAuth: true
@@ -25,7 +25,7 @@ const routes = [
       {
         path: '',
         name: 'home',
-        component: () => import('../views/common/HomeView.vue')
+        component: () => import('@/views/common/HomeView.vue')
       },
       {
         path: 'evaluations',
@@ -33,7 +33,7 @@ const routes = [
           {
             path: '',
             name: 'evaluations',
-            component: () => import('../views/common/EvaluationView.vue'),
+            component: () => import('@/views/common/EvaluationView.vue'),
             meta: {
               title: 'Star - Evaluations',
               requiresAuth: true,
@@ -43,7 +43,7 @@ const routes = [
           {
             path: ':team_id',
             name: 'team_evaluation',
-            component: () => import('../views/common/SingleEvaluationView.vue'),
+            component: () => import('@/views/common/SingleEvaluationView.vue'),
             meta: {
               title: 'Star - Team Evaluation',
               requiresAuth: true,
@@ -53,7 +53,7 @@ const routes = [
           {
             path: ':team_id/add',
             name: 'add_team_evaluation',
-            component: () => import('../views/common/AddEvaluationView.vue'),
+            component: () => import('@/views/common/AddEvaluationView.vue'),
             meta: {
               title: 'Star - Team Evaluation',
               requiresAuth: true,
@@ -67,7 +67,7 @@ const routes = [
       {
         path: 'tasks',
         name: 'tasks',
-        component: () => import('../views/student/TaskView.vue'),
+        component: () => import('@/views/student/TaskView.vue'),
         meta: {
           title: 'Star - Tasks',
           requiresAuth: true,
@@ -77,7 +77,7 @@ const routes = [
       {
         path: 'projects',
         name: 'projects',
-        component: () => import('../views/student/ProjectView.vue'),
+        component: () => import('@/views/student/ProjectView.vue'),
         meta: {
           title: 'Star - Project',
           requiresAuth: true,
@@ -87,7 +87,7 @@ const routes = [
       {
         path: 'reports',
         name: 'reports',
-        component: () => import('../views/student/ReportView.vue'),
+        component: () => import('@/views/student/ReportView.vue'),
         meta: {
           title: 'Star - Reports',
           requiresAuth: true,
@@ -97,7 +97,7 @@ const routes = [
       {
         path: 'community',
         name: 'community',
-        component: () => import('../views/student/CommunityView.vue'),
+        component: () => import('@/views/student/CommunityView.vue'),
         meta: {
           title: 'Star - Community',
           requiresAuth: true,
@@ -109,7 +109,7 @@ const routes = [
       {
         path: 'moderate/projects',
         name: 'moderate_projects',
-        component: () => import('../views/supervisor/ProjectView.vue'),
+        component: () => import('@/views/supervisor/ProjectView.vue'),
         meta: {
           title: 'Star - Project',
           requiresAuth: true,
@@ -119,7 +119,7 @@ const routes = [
       {
         path: 'moderate/reports',
         name: 'moderate_reports',
-        component: () => import('../views/supervisor/ReportView.vue'),
+        component: () => import('@/views/supervisor/ReportView.vue'),
         meta: {
           title: 'Star - Reports',
           requiresAuth: true,
@@ -129,7 +129,7 @@ const routes = [
       {
         path: 'moderate/tasks',
         name: 'moderate_tasks',
-        component: () => import('../views/supervisor/TaskView.vue'),
+        component: () => import('@/views/supervisor/TaskView.vue'),
         meta: {
           title: 'Star - Tasks',
           requiresAuth: true,
@@ -141,7 +141,7 @@ const routes = [
       {
         path: 'manage/users',
         name: 'user_management',
-        component: () => import('../views/administrator/UserView.vue'),
+        component: () => import('@/views/administrator/UserView.vue'),
         meta: {
           title: 'Star - Manage Users',
           requiresAuth: true,
@@ -151,7 +151,7 @@ const routes = [
       {
         path: 'manage/team',
         name: 'team_management',
-        component: () => import('../views/administrator/TeamView.vue'),
+        component: () => import('@/views/administrator/TeamView.vue'),
         meta: {
           title: 'Star - Manage Teams',
           requiresAuth: true,
@@ -161,7 +161,7 @@ const routes = [
       {
         path: 'manage/projects',
         name: 'project_management',
-        component: () => import('../views/administrator/ProjectView.vue'),
+        component: () => import('@/views/administrator/ProjectView.vue'),
         meta: {
           title: 'Star - Manage Projects',
           requiresAuth: true,
@@ -171,7 +171,7 @@ const routes = [
       {
         path: 'manage/reports',
         name: 'report_management',
-        component: () => import('../views/administrator/ReportView.vue'),
+        component: () => import('@/views/administrator/ReportView.vue'),
         meta: {
           title: 'Star - Manage Reports',
           requiresAuth: true,
@@ -184,7 +184,7 @@ const routes = [
           {
             path: '',
             name: 'evaluations_management',
-            component: () => import('../views/administrator/EvaluationView.vue'),
+            component: () => import('@/views/administrator/EvaluationView.vue'),
             meta: {
               title: 'Star - Evaluations Management',
               requiresAuth: true,
@@ -194,7 +194,7 @@ const routes = [
           {
             path: ':team_id',
             name: 'team_evaluation_management',
-            component: () => import('../views/common/SingleEvaluationView.vue'),
+            component: () => import('@/views/common/SingleEvaluationView.vue'),
             meta: {
               title: 'Star - Team Evaluation Management',
               requiresAuth: true,
@@ -208,7 +208,7 @@ const routes = [
   {
     path: '/home',
     name: 'home_management',
-    component: () => import('../views/administrator/HomeView.vue'),
+    component: () => import('@/views/administrator/HomeView.vue'),
     meta: {
       title: 'Star - Home',
       requiresAuth: true,
