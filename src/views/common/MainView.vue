@@ -3,7 +3,13 @@
     <v-main>
       <v-container fluid>
         <v-row>
-          <v-col :cols="leftCol">
+          <!-- Left Sidebar -->
+          <v-col
+            :cols="leftDrawer ? leftCol : 1"
+            :md="leftDrawer ? 3 : 1"
+            :sm="leftDrawer ? 4 : 1"
+            class="d-flex"
+          >
             <LeftSidebar
               :user="user"
               :drawer="leftDrawer"
@@ -11,7 +17,12 @@
             />
           </v-col>
 
-          <v-col :cols="mainCol">
+          <!-- Main Content -->
+          <v-col
+            :cols="mainCol"
+            :md="leftDrawer ? 7 : 9"
+            :sm="leftDrawer ? 8 : 10"
+          >
             <HeadBar
               :name="$route.name"
               :leftDrawer="leftDrawer"
@@ -23,9 +34,15 @@
             <div class="pa-2 mt-4">
               <router-view />
             </div>
-         </v-col>
+          </v-col>
 
-          <v-col :cols="rightCol">
+          <!-- Right Sidebar -->
+          <v-col
+            :cols="rightDrawer ? rightCol : 1"
+            :md="rightDrawer ? 2 : 1"
+            :sm="rightDrawer ? 3 : 1"
+            class="d-flex"
+          >
             <RightSidebar
               :tasks="userTasks"
               :user="user"
@@ -50,11 +67,11 @@ export default {
   name: 'Main',
   data () {
     return {
-      leftCol: 3,
-      rightCol: 1,
-      mainCol: 8,
-      leftDrawer: true,
-      rightDrawer: false
+      leftCol: 3, // Default size for left sidebar
+      rightCol: 2, // Default size for right sidebar
+      mainCol: 7, // Default size for main content
+      leftDrawer: true, // Controls left sidebar visibility
+      rightDrawer: false // Controls right sidebar visibility
     }
   },
   components: {
@@ -63,34 +80,20 @@ export default {
     RightSidebar
   },
   methods: {
-    ...mapActions(useMainStore, ['getUserTasks']),
-    ...mapActions(useMainStore, ['getProjects']),
-    ...mapActions(useMainStore, ['getTeamByMember']),
-    ...mapActions(useMainStore, ['getProjectReports']),
-    ...mapActions(useMainStore, ['getProjectByTeam']),
+    ...mapActions(useMainStore, [
+      'getUserTasks',
+      'getProjects',
+      'getTeamByMember',
+      'getProjectReports',
+      'getProjectByTeam'
+    ]),
     updateDrawer (drawer) {
       if (drawer.t === 'left') {
         this.leftDrawer = drawer.value
-
-        if (!drawer.value) {
-          this.leftCol = 1
-          this.mainCol = this.mainCol + this.leftCol
-        } else {
-          this.mainCol = this.mainCol - this.leftCol
-          this.leftCol = 3
-        }
       }
 
       if (drawer.t === 'right') {
         this.rightDrawer = drawer.value
-
-        if (!drawer.value) {
-          this.rightCol = 1
-          this.mainCol = this.mainCol + this.rightCol
-        } else {
-          this.rightCol = 1
-          this.mainCol = this.mainCol - this.rightCol
-        }
       }
     }
   },
@@ -109,8 +112,7 @@ export default {
   },
   computed: {
     ...mapState(useUserStore, ['user']),
-    ...mapState(useMainStore, ['userTasks']),
-    ...mapState(useMainStore, ['userTeam']),
+    ...mapState(useMainStore, ['userTasks', 'userTeam']),
     ...mapState(useAuthStore, ['isStudent'])
   }
 }
