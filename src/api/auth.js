@@ -6,8 +6,5 @@ export default {
       email: email,
       passwd: password
     })
-  },
-  async requestNewAccessToken () {
-    // TOOD: add new accessToken logic
   }
 }

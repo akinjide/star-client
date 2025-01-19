@@ -17,6 +17,6 @@
 15. Role: Administrator, Email: duygu.celik@emu.edu.tr, Password: hello15
 16. Role: Supervisor, Email: hasan.komurcugil@emu.edu.tr, Password: hello16
 17. Role: Supervisor, Email: marifi.guler@emu.edu.tr, Password: hello17
-18. Role: Commitee Member, Email: onsen.toygar@emu.edu.tr, Password: hello18
+18. Role: Committee Member, Email: onsen.toygar@emu.edu.tr, Password: hello18
 19. Role: Committee Member, Email: isik.aybay@emu.edu.tr, Password: hello19
 20. Role: Committee Member, Email: hakan.altincay@emu.edu.tr, Password: hello20
