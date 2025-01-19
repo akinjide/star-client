@@ -318,7 +318,6 @@ export const useMainStore = defineStore('main', {
       }
     },
     async createUser (user) {
-      // check user is admin
       try {
         const response = await api.users.create(user)
         const result = api.unwrap(response)
@@ -328,7 +327,6 @@ export const useMainStore = defineStore('main', {
       }
     },
     async updateUser (userId, user) {
-      // check user is admin
       try {
         const response = await api.users.update(userId, user)
         const result = api.unwrap(response)
