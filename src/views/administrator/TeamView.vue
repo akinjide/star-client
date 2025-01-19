@@ -285,7 +285,6 @@
 import { mapState, mapActions } from 'pinia'
 
 import IconButton from '@/components/IconButton'
-// import Dialog from '@/components/Dialog'
 import { useUserStore, useMainStore } from '@/stores'
 import api from '@/api'
 
@@ -306,7 +305,6 @@ export default {
   },
   components: {
     IconButton
-    // Dialog
   },
   methods: {
     ...mapActions(useMainStore, ['getUsers']),

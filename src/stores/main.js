@@ -150,6 +150,19 @@ export const useMainStore = defineStore('main', {
 
       return rules
     },
+    ruleIntMinMax (field, min, max, skip) {
+      const rules = [...this.ruleRequired(field, skip)]
+
+      if (min > -1) {
+        rules.push(v => (v && v >= min) || `${field} should be above ${min}`)
+      }
+
+      if (max > -1) {
+        rules.push(v => (v && v <= max) || `${field} should be below ${max}`)
+      }
+
+      return rules
+    },
     async getTopics () {
       try {
         const response = await api.topics.all()
@@ -190,7 +203,7 @@ export const useMainStore = defineStore('main', {
       const team = await this.getTeamBySupervisor(supervisorId)
       this.supervisorStudents = []
 
-      if (team) {
+      if (team && Object.keys(team).length) {
         for (const member of team.members) {
           this.supervisorStudents.push({
             ...member,

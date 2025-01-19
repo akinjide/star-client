@@ -14,7 +14,7 @@
 12. Role: Supervisor, Email: ekrem.varoglu@emu.edu.tr, Password: hello12
 13. Role: Supervisor, Email: dogu.arifler@emu.edu.tr, Password: hello13
 14. Role: Supervisor, Email: muhammed.salamah@emu.edu.tr, Password: hello14
-15. Role: Supervisor, Email: duygu.celik@emu.edu.tr, Password: hello15
+15. Role: Administrator, Email: duygu.celik@emu.edu.tr, Password: hello15
 16. Role: Supervisor, Email: hasan.komurcugil@emu.edu.tr, Password: hello16
 17. Role: Supervisor, Email: marifi.guler@emu.edu.tr, Password: hello17
 18. Role: Supervisor, Email: onsen.toygar@emu.edu.tr, Password: hello18

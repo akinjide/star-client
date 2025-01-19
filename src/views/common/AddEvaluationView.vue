@@ -227,24 +227,34 @@
                   <tr>
                     <td class="font-weight-bold">(G) Total  (out of 400)</td>
                     <td></td>
-                    <td class="text-end">0</td>
+                    <td class="text-end">{{ getRubricsGTotal() }}</td>
                   </tr>
                   <tr>
                     <td class="font-weight-bold">(T) Total  (G / 4, out of 100)</td>
                     <td></td>
-                    <td class="text-end">0</td>
+                    <td class="text-end">{{ getRubricsTTotal() }}</td>
                   </tr>
                   <tr>
                     <td class="font-weight-bold">(O) Originality (Absence of plagiarism)1</td>
                     <td></td>
                     <td class="text-end d-flex justify-end">
-                      <v-text-field density="compact" hide-details="true" max-width="100" v-model="originality" prepend-icon="mdi-percent"></v-text-field>
+                      <v-text-field
+                        density="compact"
+                        width="100"
+                        rounded="0"
+                        type="number"
+                        v-model="originality"
+                        reverse
+                        prepend-icon="mdi-percent"
+                        required
+                        :rules="ruleIntMinMax('Originality', 0, 100)"
+                      ></v-text-field>
                     </td>
                   </tr>
                   <tr>
                     <td class="font-weight-bold">Final grade (T x O)</td>
                     <td></td>
-                    <td class="text-end">0</td>
+                    <td class="text-end">{{ getRubricsFGrade() }}</td>
                   </tr>
                 </tbody>
               </v-table>
@@ -319,6 +329,7 @@ export default {
     ...mapActions(useMainStore, ['getProjects']),
     ...mapActions(useMainStore, ['getProjectByTeam']),
     ...mapActions(useMainStore, ['createEvaluation']),
+    ...mapActions(useMainStore, ['ruleIntMinMax']),
     showDialog (description) {
       this.dialog = true
       this.description = description
@@ -340,6 +351,31 @@ export default {
       }
 
       return total
+    },
+    getRubricsTotal () {
+      let total = 0
+
+      for (const rubric of this.rubrics) {
+        if (rubric && rubric.selected_score) {
+          total += ((rubric.selected_score || 0) * rubric.criterion_weight)
+        }
+      }
+
+      return total
+    },
+    getRubricsGTotal () {
+      return this.getRubricsTotal()
+    },
+    getRubricsTTotal () {
+      const gTotal = this.getRubricsTotal()
+
+      return gTotal / 4
+    },
+    getRubricsFGrade () {
+      const tTotal = this.getRubricsTTotal()
+      const originality = this.originality
+
+      return Math.round(tTotal * (originality / 100)).toFixed(2)
     },
     checkedRubricsScore (rubrics) {
       return rubrics.every(this.hasSelectedRubricScore)

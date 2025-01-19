@@ -122,12 +122,12 @@
             </v-col>
 
             <v-col cols="12" md="12" sm="12">
-              <v-text-field
+              <v-textarea
                 label="Description*"
                 v-model="topic.description"
                 :rules="ruleMinMax('Description', 10, 400)"
                 required
-              ></v-text-field>
+              ></v-textarea>
             </v-col>
 
             <v-col cols="12" md="12" sm="12">

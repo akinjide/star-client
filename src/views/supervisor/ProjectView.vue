@@ -65,7 +65,7 @@
                     tooltipText="Assign Topic"
                     color="orange"
                     icon="mdi-account-multiple-plus-outline"
-                    @click="select(project, 'assign_project')"
+                    @action="select(project, 'assign_project')"
                     v-if="projectStatus(project) === 'available' && ownProject(project)"
                   ></IconButton>
 
@@ -122,12 +122,12 @@
             </v-col>
 
             <v-col cols="12" md="12" sm="12">
-              <v-text-field
+              <v-textarea
                 label="Description*"
                 v-model="topic.description"
                 :rules="ruleMinMax('Description', 10, 400)"
                 required
-              ></v-text-field>
+              ></v-textarea>
             </v-col>
 
             <v-col cols="12" md="12" sm="12">
@@ -584,6 +584,10 @@ export default {
     },
     unassignedTeams () {
       return this.teams.filter((team) => {
+        if (this.selectedProject && this.selectedProject.supervisor_id === team.supervisor_id) {
+          return true
+        }
+
         if (team.supervisor_id) {
           return false
         }
