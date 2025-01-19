@@ -531,7 +531,6 @@ export default {
         }
       }
 
-      console.log(studentsWithoutTeam.concat(currentTeamMembers))
       return studentsWithoutTeam.concat(currentTeamMembers)
     }
   }
