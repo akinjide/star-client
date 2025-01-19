@@ -41,24 +41,106 @@ export default {
     return {
       menu: [
         // All
-        { title: 'Home', icon: 'mdi-home', name: 'home', allow: [2, 4] },
-        { title: 'Project', icon: 'mdi-file-document-multiple-outline', name: 'moderate_projects', allow: [2] },
-        { title: 'Project', icon: 'mdi-file-document-multiple-outline', name: 'projects', allow: [4] },
-        { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'tasks', allow: [4] },
-        { title: 'Tasks', icon: 'mdi-format-list-bulleted', name: 'moderate_tasks', allow: [2] },
-        { title: 'Reports', icon: 'mdi-file-import-outline', name: 'reports', allow: [4], route_resolver: (p) => {} },
-        { title: 'Reports', icon: 'mdi-file-import-outline', name: 'moderate_reports', allow: [2] },
-        { title: 'Community', icon: 'mdi-forum-outline', name: 'community', allow: [4] },
-        { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'evaluations', allow: [2, 3] },
-        { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'team_evaluation', allow: [4], route_resolver: (p) => { return p.id } },
+        {
+          title: 'Home',
+          icon: 'mdi-home',
+          name: 'home',
+          allow: [2, 4]
+        },
+        {
+          title: 'Project',
+          icon: 'mdi-file-document-multiple-outline',
+          name: 'moderate_projects',
+          allow: [2]
+        },
+        {
+          title: 'Project',
+          icon: 'mdi-file-document-multiple-outline',
+          name: 'projects',
+          allow: [4]
+        },
+        {
+          title: 'Tasks',
+          icon: 'mdi-format-list-bulleted',
+          name: 'tasks',
+          allow: [4]
+        },
+        {
+          title: 'Tasks',
+          icon: 'mdi-format-list-bulleted',
+          name: 'moderate_tasks',
+          allow: [2]
+        },
+        {
+          title: 'Reports',
+          icon: 'mdi-file-import-outline',
+          name: 'reports',
+          allow: [4],
+          route_resolver: (p) => {}
+        },
+        {
+          title: 'Reports',
+          icon: 'mdi-file-import-outline',
+          name: 'moderate_reports',
+          allow: [2]
+        },
+        {
+          title: 'Community',
+          icon: 'mdi-forum-outline',
+          name: 'community',
+          allow: [4]
+        },
+        {
+          title: 'Evaluations',
+          icon: 'mdi-clipboard-edit-outline',
+          name: 'evaluations',
+          allow: [2, 3]
+        },
+        {
+          title: 'Evaluations',
+          icon: 'mdi-clipboard-edit-outline',
+          name: 'team_evaluation',
+          allow: [4],
+          route_resolver: (p) => { return p.id }
+        },
 
         // Administrators
-        { title: 'Home', icon: 'mdi-home', name: 'home_management', allow: [1] },
-        { title: 'Users', icon: 'mdi-account-multiple-outline', name: 'user_management', allow: [1] },
-        { title: 'Team', icon: 'mdi-account-group-outline', name: 'team_management', allow: [1] },
-        { title: 'Project', icon: 'mdi-file-document-multiple-outline', name: 'project_management', allow: [1] },
-        { title: 'Reports', icon: 'mdi-file-import-outline', name: 'report_management', allow: [1] },
-        { title: 'Evaluations', icon: 'mdi-clipboard-edit-outline', name: 'evaluations_management', allow: [1] }
+        {
+          title: 'Home',
+          icon: 'mdi-home',
+          name: 'home_management',
+          allow: [1]
+        },
+        {
+          title: 'Users',
+          icon: 'mdi-account-multiple-outline',
+          name: 'user_management',
+          allow: [1]
+        },
+        {
+          title: 'Team',
+          icon: 'mdi-account-group-outline',
+          name: 'team_management',
+          allow: [1]
+        },
+        {
+          title: 'Project',
+          icon: 'mdi-file-document-multiple-outline',
+          name: 'project_management',
+          allow: [1]
+        },
+        {
+          title: 'Reports',
+          icon: 'mdi-file-import-outline',
+          name: 'report_management',
+          allow: [1]
+        },
+        {
+          title: 'Evaluations',
+          icon: 'mdi-clipboard-edit-outline',
+          name: 'evaluations_management',
+          allow: [1]
+        }
       ]
     }
   },

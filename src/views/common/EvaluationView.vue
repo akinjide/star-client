@@ -53,7 +53,7 @@
                 color="green"
                 icon="mdi-pencil-plus-outline"
                 @action="goToPage(team, 'add_team_evaluation')"
-                v-if="!hasEvaluation(team) && !ownTeam(team)"
+                v-if="!hasEvaluation(team)"
               ></IconButton>
 
               <IconButton

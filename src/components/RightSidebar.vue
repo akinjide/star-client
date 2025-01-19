@@ -118,7 +118,7 @@ export default {
           }
 
           this.attributes.push({
-            highlight: 'orange',
+            dot: 'orange',
             dates: [[task.task_assigned_at, task.task_ends_at]],
             popover: {
               label: `${task.task_name} ends soon!`

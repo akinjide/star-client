@@ -146,7 +146,7 @@
                 label="Description*"
                 v-model="task.description"
                 required
-                :rules="ruleMinMax('Description', 20, 400)"
+                :rules="ruleMinMax('Description', 10, 400)"
               ></v-textarea>
             </v-col>
 

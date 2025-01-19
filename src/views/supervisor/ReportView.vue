@@ -282,8 +282,11 @@ export default {
     await this.getTeams()
     await this.getProjects()
     const team = await this.getTeamBySupervisor(this.user.id)
-    const project = await this.getProjectByTeam(team.id)
-    await this.getProjectReports(project.project_id)
+
+    if (team && Object.keys(team).length) {
+      const project = await this.getProjectByTeam(team.id)
+      await this.getProjectReports(project.project_id)
+    }
   },
   computed: {
     ...mapState(useUserStore, ['user']),
