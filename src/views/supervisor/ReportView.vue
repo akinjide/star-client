@@ -238,9 +238,11 @@ export default {
       }
     },
     async remove (report) {
-      const response = await this.deleteReport(report.report_id)
-      console.log(response)
-      this.$router.go(this.$router.currentRoute)
+      const { errorMessage } = await this.deleteReport(report.report_id)
+
+      if (!errorMessage) {
+        this.$router.go(this.$router.currentRoute)
+      }
     },
     isProgressReport (submission) {
       return submission && submission.report_name === REPORT_TYPES[2]
@@ -255,11 +257,11 @@ export default {
       return this.isReportText(submission) || this.isReportURL(submission)
     },
     async comment (value) {
-      const response = await this.updateReport(this.report.report_id, {
+      const { errorMessage } = await this.updateReport(this.report.report_id, {
         comment: value
       })
 
-      if (response) {
+      if (!errorMessage) {
         this.dialog.add_comment = false
         this.$router.go(this.$router.currentRoute)
       }

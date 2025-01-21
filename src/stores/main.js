@@ -345,26 +345,54 @@ export const useMainStore = defineStore('main', {
       }
     },
     async getRubrics () {
-      const { data: { data } } = await api.rubrics.all()
-      this.rubrics = data
+      try {
+        const response = await api.rubrics.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.rubrics = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async createEvaluation (records, originality, evaluatorId, projectId) {
-      const { data: { data } } = await api.evaluations.create({
-        project_id: projectId,
-        evaluator_id: evaluatorId,
-        originality: originality,
-        evaluation: records
-      })
-      console.log(data)
-      return true
+      try {
+        const response = await api.evaluations.create({
+          project_id: projectId,
+          evaluator_id: evaluatorId,
+          originality: originality,
+          evaluation: records
+        })
+        const result = api.unwrap(response)
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getEvaluation (projectId) {
-      const { data: { data } } = await api.evaluations.get(projectId)
-      this.evaluation = data
+      try {
+        const response = await api.evaluations.get(projectId)
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.evaluation = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getEvaluations () {
-      const { data: { data } } = await api.evaluations.all()
-      this.evaluations = data
+      try {
+        const response = await api.evaluations.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.evaluations = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async createTeam () {
 
@@ -373,49 +401,89 @@ export const useMainStore = defineStore('main', {
 
     },
     async addTask (task) {
-      const team = await this.getTeamByMember(task.user_id)
-      const project = await this.getProjectByTeam(team.id)
-      const { data: { data } } = await api.tasks.create({
-        ...task,
-        team_id: team.id,
-        project_id: project.project_id,
-        assigned_at: new Date()
-      })
-
-      console.log(data)
-      return true
+      try {
+        const team = await this.getTeamByMember(task.user_id)
+        const project = await this.getProjectByTeam(team.id)
+        const response = await api.tasks.create({
+          ...task,
+          team_id: team.id,
+          project_id: project.project_id,
+          assigned_at: new Date()
+        })
+        const result = api.unwrap(response)
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async updateTask (taskId, task) {
-      const { data: { data } } = await api.tasks.update(taskId, task)
-      console.log(data)
-      return true
+      try {
+        const response = await api.tasks.update(taskId, task)
+        const result = api.unwrap(response)
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async completeTask (taskId) {
-      const { data: { data } } = await api.tasks.complete(taskId)
-      console.log(data)
-      return true
+      try {
+        const response = await api.tasks.complete(taskId)
+        const result = api.unwrap(response)
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async removeTask (taskId) {
-      const { data: { data } } = await api.tasks.remove(taskId)
-      console.log(data)
-      return true
+      try {
+        const response = await api.tasks.remove(taskId)
+        const result = api.unwrap(response)
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getReports () {
-      const { data: { data } } = await api.reports.all()
-      this.reports = data
+      try {
+        const response = await api.reports.all()
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.reports = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async getProjectReports (projectId) {
-      const { data: { data } } = await api.reports.get(projectId)
-      this.projectReports = data
+      try {
+        const response = await api.reports.get(projectId)
+        const result = api.unwrap(response)
+        const { data } = result
+
+        this.projectReports = data
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async deleteReport (reportId) {
-      const { data: { data } } = await api.reports.remove(reportId)
-      return data
+      try {
+        const response = await api.reports.remove(reportId)
+        const result = api.unwrap(response)
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     },
     async updateReport (reportId, report) {
-      const { data: { data } } = await api.reports.update(reportId, report)
-      console.log(data)
-      return true
+      try {
+        const response = await api.reports.update(reportId, report)
+        const result = api.unwrap(response)
+        return result
+      } catch (err) {
+        return api.handleError(err)
+      }
     }
   }
 })

@@ -374,46 +374,46 @@ export default {
     },
     async upsert (record) {
       if (record.action === 'add_task') {
-        const response = await this.addTask(record)
+        const { errorMessage } = await this.addTask(record)
 
-        if (response) {
+        if (!errorMessage) {
           this.dialog.task.value = false
           this.$router.go(this.$router.currentRoute)
         }
       }
 
       if (record.action === 'edit_task') {
-        const response = await this.updateTask(record.task_id, record)
+        const { errorMessage } = await this.updateTask(record.task_id, record)
 
-        if (response) {
+        if (!errorMessage) {
           this.dialog.task.value = false
           this.$router.go(this.$router.currentRoute)
         }
       }
     },
     async grade (value) {
-      const response = await this.updateTask(this.task.task_id, { grade: value })
+      const { errorMessage } = await this.updateTask(this.task.task_id, { grade: value })
 
-      if (response) {
+      if (!errorMessage) {
         this.dialog.grade_task = false
         this.$router.go(this.$router.currentRoute)
       }
     },
     async comment (value) {
-      const response = await this.updateTask(this.task.task_id, {
+      const { errorMessage } = await this.updateTask(this.task.task_id, {
         comment: value
       })
 
-      if (response) {
+      if (!errorMessage) {
         this.dialog.add_comment = false
         this.$router.go(this.$router.currentRoute)
       }
     },
     async remove (confirm) {
       if (confirm) {
-        const response = await this.removeTask(this.selectedTask.task_id)
+        const { errorMessage } = await this.removeTask(this.selectedTask.task_id)
 
-        if (response) {
+        if (!errorMessage) {
           this.dialog.remove_task = false
           this.$router.go(this.$router.currentRoute)
         }

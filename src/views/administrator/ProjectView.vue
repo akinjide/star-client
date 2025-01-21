@@ -483,7 +483,6 @@ export default {
       if (record.file) {
         const response = await api.upload.create(record.file, 'documents', event => {
           this.progress = true
-          console.log(Math.round((100 * event.loaded) / event.total))
         })
 
         this.progress = false
@@ -496,7 +495,6 @@ export default {
         const response = await api.topics.create(record)
 
         if (response && response.data) {
-          console.log(response.data)
           this.dialog.topic.value = false
           this.$router.go(this.$router.currentRoute)
         }
@@ -506,7 +504,6 @@ export default {
         const response = await api.topics.update(record.topic_id, record)
 
         if (response && response.data) {
-          console.log(response.data)
           this.dialog.topic.value = false
           this.$router.go(this.$router.currentRoute)
         }
@@ -516,7 +513,6 @@ export default {
         const response = await api.projects.create(record)
 
         if (response && response.data) {
-          console.log(response.data)
           this.dialog.assign_project = false
           this.$router.go(this.$router.currentRoute)
         }
@@ -531,7 +527,6 @@ export default {
         })
 
         if (response && response.data) {
-          console.log(response.data)
           this.dialog.edit_project = false
           this.$router.go(this.$router.currentRoute)
         }

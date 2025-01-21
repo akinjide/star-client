@@ -503,7 +503,6 @@ export default {
         const response = await api.topics.create(record)
 
         if (response && response.data) {
-          console.log(response.data)
           this.dialog.topic.value = false
           this.$router.go(this.$router.currentRoute)
         }
@@ -513,7 +512,6 @@ export default {
         const response = await api.topics.update(record.topic_id, record)
 
         if (response && response.data) {
-          console.log(response.data)
           this.dialog.topic.value = false
           this.$router.go(this.$router.currentRoute)
         }
@@ -538,7 +536,6 @@ export default {
         })
 
         if (response && response.data) {
-          console.log(response.data)
           this.dialog.edit_project = false
           this.$router.go(this.$router.currentRoute)
         }

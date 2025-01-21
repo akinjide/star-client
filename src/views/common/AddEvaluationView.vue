@@ -398,13 +398,11 @@ export default {
           }
         })
 
-      const response = await this.createEvaluation(evaluatedRubrics, this.originality, this.user.id, this.projectId)
+      const { errorMessage } = await this.createEvaluation(evaluatedRubrics, this.originality, this.user.id, this.projectId)
 
-      if (response) {
+      if (!errorMessage) {
         return this.$router.push('/dashboard/evaluations')
       }
-
-      // TODO: something when no response
     },
     prevStepper () {
       if (this.step === 1) {
@@ -423,7 +421,6 @@ export default {
 
         if (!this.checkedRubricsScore(rubrics)) {
           this.missingRequired = true
-          console.log('failed')
           return
         }
       }

@@ -127,9 +127,11 @@ export default {
       }
     },
     complete (task) {
-      const response = this.completeTask(task.task_id)
-      console.log(response)
-      this.$router.go(this.$router.currentRoute)
+      const { errorMessage } = this.completeTask(task.task_id)
+
+      if (!errorMessage) {
+        this.$router.go(this.$router.currentRoute)
+      }
     }
   },
   async created () {

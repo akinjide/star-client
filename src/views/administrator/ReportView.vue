@@ -179,7 +179,6 @@ export default {
       if (record.file) {
         const response = await api.upload.create(record.file, 'documents', event => {
           this.progress = true
-          console.log(Math.round((100 * event.loaded) / event.total))
         })
 
         this.progress = false
@@ -202,16 +201,17 @@ export default {
         })
 
         if (response && response.data) {
-          console.log(response.data)
           this.dialog.add_report = false
           this.$router.go(this.$router.currentRoute)
         }
       }
     },
     async remove (report) {
-      const response = await this.deleteReport(report.report_id)
-      console.log(response)
-      this.$router.go(this.$router.currentRoute)
+      const { errorMessage } = await this.deleteReport(report.report_id)
+
+      if (!errorMessage) {
+        this.$router.go(this.$router.currentRoute)
+      }
     },
     isProgressReport (submission) {
       return submission && submission.report_name === REPORT_TYPES[2]
